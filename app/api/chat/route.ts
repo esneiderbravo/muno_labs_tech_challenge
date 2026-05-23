@@ -11,5 +11,5 @@ export async function POST(req: Request) {
     clientId,
   )
 
-  return result.toTextStreamResponse()
+  return result.toUIMessageStreamResponse()
 }
