@@ -1,4 +1,5 @@
 # Growth Agent — Design Spec
+
 **Date:** 2026-05-23  
 **Challenge:** MunoLabs Caso Tech & Growth Agent  
 **Stack:** Next.js 16 + TypeScript + Vercel AI SDK + Claude claude-sonnet-4-6 + Vercel
@@ -65,18 +66,18 @@ Browser (Next.js App Router)
 
 The agent decides which tools to call based on the question type. It does not call all tools every time.
 
-| Tool | Mock data | Mode | Simulated freshness |
-|------|-----------|------|---------------------|
-| `get_notion_docs(client)` | Wikis, proposals, clean meeting notes | Read | Days–weeks |
-| `get_linear_tasks(client)` | Tasks, bugs, milestones, cycles | Read + Write | Hours–days |
-| `get_slack_messages(client, channel?)` | Client threads, quick decisions | Read + Write (draft) | Minutes |
-| `get_meeting_transcripts(client)` | Transcripts + Granola/Circleback summaries | Read | Minutes post-meeting |
-| `get_calendar_events(client)` | Past/future meetings, attendees | Read | Variable |
-| `get_drive_files(client)` | Decks, proposals, assets, exports | Read | Weeks |
-| `get_github_activity(client)` | PRs, issues, recent commits | Read | Hours |
-| `get_obsidian_notes(founder?)` | Founder private notes | Read | Days |
-| `get_posthog_metrics(client)` | Real-time product metrics | Read | Real-time |
-| `get_whatsapp_messages(client)` | Recent client channel messages | Read | Minutes |
+| Tool                                   | Mock data                                  | Mode                 | Simulated freshness  |
+| -------------------------------------- | ------------------------------------------ | -------------------- | -------------------- |
+| `get_notion_docs(client)`              | Wikis, proposals, clean meeting notes      | Read                 | Days–weeks           |
+| `get_linear_tasks(client)`             | Tasks, bugs, milestones, cycles            | Read + Write         | Hours–days           |
+| `get_slack_messages(client, channel?)` | Client threads, quick decisions            | Read + Write (draft) | Minutes              |
+| `get_meeting_transcripts(client)`      | Transcripts + Granola/Circleback summaries | Read                 | Minutes post-meeting |
+| `get_calendar_events(client)`          | Past/future meetings, attendees            | Read                 | Variable             |
+| `get_drive_files(client)`              | Decks, proposals, assets, exports          | Read                 | Weeks                |
+| `get_github_activity(client)`          | PRs, issues, recent commits                | Read                 | Hours                |
+| `get_obsidian_notes(founder?)`         | Founder private notes                      | Read                 | Days                 |
+| `get_posthog_metrics(client)`          | Real-time product metrics                  | Read                 | Real-time            |
+| `get_whatsapp_messages(client)`        | Recent client channel messages             | Read                 | Minutes              |
 
 ### Intelligent selection by query type
 
@@ -104,12 +105,12 @@ The intelligence is visible in the demo: the user sees in real time which tools 
 
 ## 5. Mock Data — 4 Clients Designed for the Demo
 
-| Client | Scenario | Demonstrates |
-|--------|----------|--------------|
-| **Client A** | At-risk project: deadline this week, 3 overdue tasks, no Slack update in 5 days | Risk detection, prioritization |
-| **Client B** | Healthy state, recent meeting, positive PostHog metrics | Normal structured response |
+| Client       | Scenario                                                                              | Demonstrates                              |
+| ------------ | ------------------------------------------------------------------------------------- | ----------------------------------------- |
+| **Client A** | At-risk project: deadline this week, 3 overdue tasks, no Slack update in 5 days       | Risk detection, prioritization            |
+| **Client B** | Healthy state, recent meeting, positive PostHog metrics                               | Normal structured response                |
 | **Client C** | Active conflict: Granola(Tuesday)=X, Linear(Wednesday)=Y, Slack(Thursday)=Z, Notion=X | Conflict resolution with confidence score |
-| **Client D** | Promises from last month in transcripts, some closed in Linear, others with no task | Commitment cross-reference |
+| **Client D** | Promises from last month in transcripts, some closed in Linear, others with no task   | Commitment cross-reference                |
 
 ---
 
@@ -126,6 +127,7 @@ function detectConflicts(toolResults: ToolResult[]): Conflict[] {
 ```
 
 **Response format when a conflict is detected:**
+
 ```
 ⚠️ Conflict detected across sources:
   - Granola (Tuesday 05/20): Decision was to proceed with design X
@@ -145,18 +147,19 @@ The LLM never responds with free text. The system prompt enforces this format:
 
 ```typescript
 interface AgentResponse {
-  summary: string             // 2–3 executive lines
-  risks: Risk[]               // With evidence and source
-  next_steps: string[]        // Concrete and actionable
+  summary: string // 2–3 executive lines
+  risks: Risk[] // With evidence and source
+  next_steps: string[] // Concrete and actionable
   confidence: 'high' | 'medium' | 'low'
   confidence_reason: string
   sources_consulted: string[]
-  conflicts?: Conflict[]      // Only if detected
-  proposed_actions?: ProposedAction[]  // Write-back pending approval
+  conflicts?: Conflict[] // Only if detected
+  proposed_actions?: ProposedAction[] // Write-back pending approval
 }
 ```
 
 **Confidence rules:**
+
 - `high`: all consulted sources agree
 - `medium`: sources mostly aligned, minor discrepancy
 - `low`: active conflict, single source, or stale data
@@ -167,11 +170,11 @@ interface AgentResponse {
 
 The agent can propose write actions, never execute them alone:
 
-| Action | Tool | Flow |
-|--------|------|------|
-| Create task | Linear | Agent proposes → user approves → created |
-| Update doc | Notion | Agent proposes → user approves → updated |
-| Message draft | Slack | Agent drafts → user reviews/sends |
+| Action        | Tool   | Flow                                     |
+| ------------- | ------ | ---------------------------------------- |
+| Create task   | Linear | Agent proposes → user approves → created |
+| Update doc    | Notion | Agent proposes → user approves → updated |
+| Message draft | Slack  | Agent drafts → user reviews/sends        |
 
 **Autonomy in v1: draft mode only.** The agent never acts on its own.
 
@@ -179,45 +182,49 @@ The agent can propose write actions, never execute them alone:
 
 ## 9. Guardrails
 
-| Risk | Guardrail |
-|------|-----------|
-| Data hallucination | The LLM can only cite data that came from a tool call. The prompt explicitly forbids inventing information. |
-| Silenced conflict | If `detectConflicts()` returns results, the prompt forces the LLM to mention them. |
-| Overconfidence | Confidence "High" only when all sources agree. Single source = "Low". |
-| Unauthorized write-back | Every write action requires explicit user confirmation (Approve button). |
-| Account permissions | Every query includes `userId`. The mock data layer filters by accounts assigned to that user. |
-| Agent scope creep | The system prompt explicitly defines what the agent can and cannot do. |
+| Risk                    | Guardrail                                                                                                   |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Data hallucination      | The LLM can only cite data that came from a tool call. The prompt explicitly forbids inventing information. |
+| Silenced conflict       | If `detectConflicts()` returns results, the prompt forces the LLM to mention them.                          |
+| Overconfidence          | Confidence "High" only when all sources agree. Single source = "Low".                                       |
+| Unauthorized write-back | Every write action requires explicit user confirmation (Approve button).                                    |
+| Account permissions     | Every query includes `userId`. The mock data layer filters by accounts assigned to that user.               |
+| Agent scope creep       | The system prompt explicitly defines what the agent can and cannot do.                                      |
 
 ---
 
 ## 10. MCP vs Direct API vs Scrape
 
 ### Scrape — Rejected
+
 Brittle, violates ToS on most tools, high maintenance cost. Only viable for tools with no API (WhatsApp edge case). Not used in this project.
 
 ### Direct API — Strategy for v2
+
 The right choice for a web app where the agent runs on our Next.js server:
 
-| Tool | API | Notes |
-|------|-----|-------|
-| Linear | GraphQL API | Excellent docs, official SDK |
-| Slack | Web API | Official Node.js SDK, well-defined OAuth |
-| GitHub | REST + GraphQL | No auth needed for public repos |
-| Notion | REST API | Official SDK, predictable structure |
-| Google Calendar/Drive | Google APIs | Standard OAuth2, mature SDKs |
-| PostHog | REST API | Designed for programmatic consumption |
-| Granola/Circleback | REST (if available) or webhook | Depends on plan/tier |
-| WhatsApp | Mock in v1 | No official API without Meta Business |
-| Obsidian | Local plugin or vault sync | No native cloud API |
+| Tool                  | API                            | Notes                                    |
+| --------------------- | ------------------------------ | ---------------------------------------- |
+| Linear                | GraphQL API                    | Excellent docs, official SDK             |
+| Slack                 | Web API                        | Official Node.js SDK, well-defined OAuth |
+| GitHub                | REST + GraphQL                 | No auth needed for public repos          |
+| Notion                | REST API                       | Official SDK, predictable structure      |
+| Google Calendar/Drive | Google APIs                    | Standard OAuth2, mature SDKs             |
+| PostHog               | REST API                       | Designed for programmatic consumption    |
+| Granola/Circleback    | REST (if available) or webhook | Depends on plan/tier                     |
+| WhatsApp              | Mock in v1                     | No official API without Meta Business    |
+| Obsidian              | Local plugin or vault sync     | No native cloud API                      |
 
 ### MCP — The Strategic Play
+
 MCP (Model Context Protocol) applies in two distinct ways:
 
-**Consuming external MCP servers** (Linear MCP, GitHub MCP, Slack MCP): only makes sense if the agent runs *inside* an MCP client like Claude Code or Cursor. In our Next.js web app with Vercel AI SDK, the agent lives on our server — external MCP servers do not apply directly in v1.
+**Consuming external MCP servers** (Linear MCP, GitHub MCP, Slack MCP): only makes sense if the agent runs _inside_ an MCP client like Claude Code or Cursor. In our Next.js web app with Vercel AI SDK, the agent lives on our server — external MCP servers do not apply directly in v1.
 
 **Exposing this agent as an MCP server (v2+):** This is the real play. Turning the agent into an MCP server means founders can query it from Claude Code, Cursor, or any AI tool they already use, without opening another app. This turns the agent from a standalone product into the agency's AI infrastructure layer.
 
 ### Decision for v1
+
 Mock modules with the same interface the real APIs would have. The agent does not know the difference. The swap to production is changing each function body, not the architecture.
 
 ---
@@ -240,15 +247,15 @@ In v2: Auth with NextAuth or Clerk, permissions inherited from the querying user
 
 ## 12. Tech Stack
 
-| Layer | Technology | Rationale |
-|-------|-----------|-----------|
-| Framework | Next.js 16 App Router + TypeScript | Already scaffolded, App Router for native streaming |
-| AI SDK | Vercel AI SDK 4.x | `streamText` + tool calling, trivial streaming to UI |
-| LLM | Claude claude-sonnet-4-6 | Best reasoning, aligned with JD (Claude Code = plus) |
-| UI | Tailwind v4 + shadcn/ui | Already configured, fast clean components |
-| Data | TypeScript mock modules | Identical interface to real APIs, swap without refactor |
-| Deploy | Vercel | Linked to repo, auto-deploy on push, 2 minutes |
-| Auth | None in v1 | Hardcoded userId for the demo |
+| Layer     | Technology                         | Rationale                                               |
+| --------- | ---------------------------------- | ------------------------------------------------------- |
+| Framework | Next.js 16 App Router + TypeScript | Already scaffolded, App Router for native streaming     |
+| AI SDK    | Vercel AI SDK 4.x                  | `streamText` + tool calling, trivial streaming to UI    |
+| LLM       | Claude claude-sonnet-4-6           | Best reasoning, aligned with JD (Claude Code = plus)    |
+| UI        | Tailwind v4 + shadcn/ui            | Already configured, fast clean components               |
+| Data      | TypeScript mock modules            | Identical interface to real APIs, swap without refactor |
+| Deploy    | Vercel                             | Linked to repo, auto-deploy on push, 2 minutes          |
+| Auth      | None in v1                         | Hardcoded userId for the demo                           |
 
 ---
 
@@ -266,18 +273,18 @@ In v2: Auth with NextAuth or Clerk, permissions inherited from the querying user
 
 ## 14. Implementation Estimate
 
-| Task | Time |
-|------|------|
-| Setup + shadcn + base structure | 20 min |
-| Mock data layer (4 clients, 10 sources) | 40 min |
-| Tool registry + orchestrator + conflict detection | 60 min |
-| System prompt + structured output | 30 min |
-| Chat UI with streaming + source badges | 45 min |
-| Confidence indicator + conflict alert UI | 20 min |
-| Write-back card (propose + approve) | 20 min |
-| Vercel deploy + smoke test | 15 min |
-| Buffer | 10 min |
-| **Total** | **~3h 40min** |
+| Task                                              | Time          |
+| ------------------------------------------------- | ------------- |
+| Setup + shadcn + base structure                   | 20 min        |
+| Mock data layer (4 clients, 10 sources)           | 40 min        |
+| Tool registry + orchestrator + conflict detection | 60 min        |
+| System prompt + structured output                 | 30 min        |
+| Chat UI with streaming + source badges            | 45 min        |
+| Confidence indicator + conflict alert UI          | 20 min        |
+| Write-back card (propose + approve)               | 20 min        |
+| Vercel deploy + smoke test                        | 15 min        |
+| Buffer                                            | 10 min        |
+| **Total**                                         | **~3h 40min** |
 
 ---
 

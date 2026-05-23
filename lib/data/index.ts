@@ -6,10 +6,10 @@ import * as clientC from './clients/client-c'
 import * as clientD from './clients/client-d'
 
 const registry = {
-  'client-a': clientA,
-  'client-b': clientB,
-  'client-c': clientC,
-  'client-d': clientD,
+  vivamart: clientA,
+  clarix: clientB,
+  cornerstone: clientC,
+  paylane: clientD,
 } as const
 
 export function getClient(id: ClientId) {

@@ -1,7 +1,6 @@
 'use client'
-import { useRef, type KeyboardEvent } from 'react'
+import { type KeyboardEvent } from 'react'
 import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
 
 interface ChatInputProps {
   input: string
@@ -19,28 +18,38 @@ export function ChatInput({ input, isLoading, onChange, onSubmit }: ChatInputPro
   }
 
   return (
-    <div className="border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4">
-      <div className="max-w-3xl mx-auto flex gap-2 items-end">
-        <Textarea
-          value={input}
-          onChange={e => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask about a client, project status, risks, or request a brief..."
-          className="min-h-[44px] max-h-[200px] resize-none text-sm"
-          rows={1}
-          disabled={isLoading}
-        />
-        <Button
-          type="button"
-          onClick={onSubmit}
-          disabled={isLoading || !input.trim()}
-          className="h-[44px] px-4 shrink-0"
-        >
-          {isLoading ? '...' : 'Send'}
-        </Button>
-      </div>
-      <div className="max-w-3xl mx-auto mt-2 text-xs text-zinc-400 text-center">
-        Enter to send · Shift+Enter for new line
+    <div className="border-border bg-background shrink-0 border-t px-6 py-4">
+      <div className="mx-auto max-w-3xl">
+        <div className="border-border flex items-end gap-0 border bg-[oklch(1_0_0_/_2.5%)] transition-colors duration-200 focus-within:border-[var(--accent-gold)]/40">
+          <Textarea
+            value={input}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Pregunta sobre un cliente, estado de proyectos, riesgos o solicita un informe..."
+            className="placeholder:text-muted-foreground/35 max-h-[180px] min-h-[40px] resize-none rounded-none border-0 bg-transparent px-4 py-2.5 text-sm shadow-none focus-visible:ring-0"
+            rows={1}
+            disabled={isLoading}
+          />
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={isLoading || !input.trim()}
+            className="h-[40px] shrink-0 bg-[var(--accent-gold)] px-5 font-mono text-[10px] tracking-[0.2em] text-[oklch(0.09_0.008_65)] uppercase transition-all duration-150 hover:bg-[oklch(0.73_0.095_65)] active:bg-[oklch(0.67_0.095_65)] disabled:cursor-not-allowed disabled:opacity-25"
+          >
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-0.5">
+                <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:130ms]" />
+                <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:260ms]" />
+              </span>
+            ) : (
+              'Enviar'
+            )}
+          </button>
+        </div>
+        <p className="text-muted-foreground/30 mt-2 text-center font-mono text-[9px] tracking-[0.2em] uppercase">
+          Enter para enviar · Shift+Enter para nueva línea
+        </p>
       </div>
     </div>
   )

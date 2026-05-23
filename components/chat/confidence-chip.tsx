@@ -1,5 +1,4 @@
 // components/chat/confidence-chip.tsx
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 interface ConfidenceChipProps {
@@ -8,16 +7,35 @@ interface ConfidenceChipProps {
 }
 
 const CONFIG = {
-  high: { label: 'High confidence', className: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' },
-  medium: { label: 'Medium confidence', className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100' },
-  low: { label: 'Low confidence', className: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100' },
+  high: {
+    label: 'Alta',
+    dotColor: 'bg-[var(--status-healthy)]',
+    textColor: 'text-[var(--status-healthy)]',
+  },
+  medium: {
+    label: 'Media',
+    dotColor: 'bg-[var(--status-conflict)]',
+    textColor: 'text-[var(--status-conflict)]',
+  },
+  low: {
+    label: 'Baja',
+    dotColor: 'bg-[var(--status-risk)]',
+    textColor: 'text-[var(--status-risk)]',
+  },
 }
 
 export function ConfidenceChip({ level, reason }: ConfidenceChipProps) {
   const config = CONFIG[level]
   return (
-    <Badge className={cn('text-xs font-normal border-0', config.className)} title={reason}>
-      {config.label}
-    </Badge>
+    <span
+      className={cn(
+        'border-border flex cursor-default items-center gap-1.5 border px-1.5 py-px font-mono text-[9px] tracking-[0.15em] uppercase',
+        config.textColor,
+      )}
+      title={reason}
+    >
+      <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', config.dotColor)} />
+      {config.label} conf.
+    </span>
   )
 }

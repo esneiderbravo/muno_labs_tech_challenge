@@ -11,10 +11,10 @@ describe('getClientsByUser', () => {
   it('returns only assigned clients for account_lead', () => {
     const result = getClientsByUser('account-lead-1', 'account_lead')
     const ids = result.map((c) => c.id)
-    expect(ids).toContain('client-a')
-    expect(ids).toContain('client-c')
-    expect(ids).not.toContain('client-b')
-    expect(ids).not.toContain('client-d')
+    expect(ids).toContain('vivamart')
+    expect(ids).toContain('cornerstone')
+    expect(ids).not.toContain('clarix')
+    expect(ids).not.toContain('paylane')
   })
 
   it('returns empty array for user with no assignments', () => {

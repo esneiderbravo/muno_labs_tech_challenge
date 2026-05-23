@@ -10,9 +10,7 @@ const DECISION_BEARING_TOOLS = new Set([
 ])
 
 export function detectConflicts(toolResults: ToolResult[]): Conflict[] {
-  const decisionResults = toolResults.filter((r) =>
-    DECISION_BEARING_TOOLS.has(r.toolName),
-  )
+  const decisionResults = toolResults.filter((r) => DECISION_BEARING_TOOLS.has(r.toolName))
 
   if (decisionResults.length < 2) return []
 
@@ -49,8 +47,7 @@ export function detectConflicts(toolResults: ToolResult[]): Conflict[] {
       mostRecentSource: newest.toolName,
       mostRecentValue: `Most recent data in ${newest.toolName}`,
       confidence: results.length >= 3 ? 'low' : 'medium',
-      recommendation:
-        'Review the most recent source and confirm with the team before proceeding.',
+      recommendation: 'Review the most recent source and confirm with the team before proceeding.',
     })
   }
 

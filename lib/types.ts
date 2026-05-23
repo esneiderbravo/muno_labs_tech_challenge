@@ -1,6 +1,6 @@
 // lib/types.ts
 
-export type ClientId = 'client-a' | 'client-b' | 'client-c' | 'client-d'
+export type ClientId = 'vivamart' | 'clarix' | 'cornerstone' | 'paylane'
 export type UserRole = 'founder' | 'account_lead'
 
 export interface Client {

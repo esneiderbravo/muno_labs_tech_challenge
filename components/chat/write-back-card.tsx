@@ -1,13 +1,12 @@
 'use client'
 import { useState } from 'react'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import type { ProposedAction } from '@/lib/types'
 
-const TYPE_LABELS: Record<string, { label: string; emoji: string }> = {
-  linear_task: { label: 'Create Linear task', emoji: '📋' },
-  slack_draft: { label: 'Send Slack draft', emoji: '💬' },
-  notion_update: { label: 'Update Notion doc', emoji: '📄' },
+const TYPE_LABELS: Record<string, { label: string; abbr: string }> = {
+  linear_task: { label: 'Crear tarea en Linear', abbr: 'LINEAR' },
+  slack_draft: { label: 'Enviar mensaje por Slack', abbr: 'SLACK' },
+  notion_update: { label: 'Actualizar documento en Notion', abbr: 'NOTION' },
 }
 
 interface WriteBackCardProps {
@@ -26,37 +25,51 @@ export function WriteBackCard({ action }: WriteBackCardProps) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action }),
     })
-    const data = await res.json() as { message: string }
+    const data = (await res.json()) as { message: string }
     setResultMessage(data.message)
     setStatus('done')
   }
 
   return (
-    <Card className="mt-2 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800">
-      <CardContent className="pt-3 pb-2">
-        <div className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-1">
-          {info.emoji} Agent proposes: {info.label}
-        </div>
-        <div className="text-sm text-blue-700 dark:text-blue-300">{action.previewText}</div>
+    <div className="mt-1 border border-[var(--status-pending)]/22 bg-[var(--status-pending)]/[0.04]">
+      {/* Header */}
+      <div className="flex items-center gap-2.5 border-b border-[var(--status-pending)]/15 px-4 py-2.5">
+        <div className="h-3.5 w-0.5 shrink-0 bg-[var(--status-pending)]" />
+        <span className="font-mono text-[9px] tracking-[0.2em] text-[var(--status-pending)] uppercase">
+          {info?.abbr ?? action.type} — El agente propone una acción
+        </span>
+      </div>
+
+      {/* Preview */}
+      <div className="px-4 py-3">
+        <p className="text-foreground/80 text-sm leading-relaxed">{action.previewText}</p>
         {status === 'done' && (
-          <div className="text-xs text-green-700 dark:text-green-300 mt-2">✓ {resultMessage}</div>
+          <p className="mt-2 font-mono text-[9px] tracking-[0.15em] text-[var(--status-healthy)] uppercase">
+            ✓ {resultMessage}
+          </p>
         )}
-      </CardContent>
+      </div>
+
+      {/* Actions */}
       {status !== 'done' && (
-        <CardFooter className="pb-3 pt-0 gap-2">
-          <Button
-            size="sm"
+        <div className="flex items-center gap-3 border-t border-[var(--status-pending)]/15 px-4 py-2.5">
+          <button
             onClick={handleApprove}
             disabled={status === 'loading'}
-            className="h-7 text-xs bg-blue-600 hover:bg-blue-700"
+            className={cn(
+              'px-3 py-1.5 font-mono text-[9px] tracking-[0.2em] uppercase transition-all duration-150',
+              'bg-[var(--status-pending)] text-[oklch(0.09_0.008_65)]',
+              'hover:bg-[oklch(0.65_0.10_250)] active:bg-[oklch(0.58_0.10_250)]',
+              'disabled:cursor-not-allowed disabled:opacity-40',
+            )}
           >
-            {status === 'loading' ? 'Executing...' : 'Approve'}
-          </Button>
-          <Button size="sm" variant="ghost" className="h-7 text-xs text-blue-600">
-            Dismiss
-          </Button>
-        </CardFooter>
+            {status === 'loading' ? 'Ejecutando...' : 'Aprobar'}
+          </button>
+          <button className="text-muted-foreground/50 hover:text-muted-foreground px-3 py-1.5 font-mono text-[9px] tracking-[0.2em] uppercase transition-colors duration-150">
+            Descartar
+          </button>
+        </div>
       )}
-    </Card>
+    </div>
   )
 }

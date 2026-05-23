@@ -1,9 +1,28 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Cormorant_Garamond, Instrument_Sans, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
+const cormorant = Cormorant_Garamond({
+  variable: '--font-cormorant',
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+})
+
+const instrumentSans = Instrument_Sans({
+  variable: '--font-instrument',
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-jetbrains',
+  subsets: ['latin'],
+  weight: ['300', '400', '500'],
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Growth Agent — PM Virtual',
@@ -12,8 +31,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-950">{children}</body>
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${instrumentSans.variable} ${jetbrainsMono.variable} h-full`}
+    >
+      <body className="bg-background text-foreground flex h-full flex-col antialiased">
+        {children}
+      </body>
     </html>
   )
 }

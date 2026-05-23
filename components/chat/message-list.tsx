@@ -19,26 +19,27 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center text-zinc-400 text-sm">
-        Ask anything about your clients — or select one from the sidebar to start.
+      <div className="text-muted-foreground/30 flex flex-1 items-center justify-center font-mono text-[10px] tracking-[0.2em] uppercase">
+        Pregunta cualquier cosa sobre tus clientes
       </div>
     )
   }
 
   return (
-    <ScrollArea className="flex-1 px-4">
-      <div className="py-4 space-y-4 max-w-3xl mx-auto">
-        {messages.map(message => (
+    <ScrollArea className="flex-1 px-6">
+      <div className="mx-auto max-w-3xl space-y-6 py-6">
+        {messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
         ))}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl rounded-tl-sm px-4 py-3">
-              <div className="flex gap-1">
-                <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:0ms]" />
-                <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:150ms]" />
-                <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:300ms]" />
-              </div>
+            <div className="flex items-center gap-2 px-1 py-2">
+              <span className="h-1 w-1 animate-bounce rounded-full bg-[var(--accent-gold)] opacity-60 [animation-delay:0ms]" />
+              <span className="h-1 w-1 animate-bounce rounded-full bg-[var(--accent-gold)] opacity-60 [animation-delay:130ms]" />
+              <span className="h-1 w-1 animate-bounce rounded-full bg-[var(--accent-gold)] opacity-60 [animation-delay:260ms]" />
+              <span className="text-muted-foreground/35 ml-1 font-mono text-[9px] tracking-[0.2em] uppercase">
+                Analizando
+              </span>
             </div>
           </div>
         )}

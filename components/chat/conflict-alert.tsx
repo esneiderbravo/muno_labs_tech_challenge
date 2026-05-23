@@ -1,5 +1,4 @@
 // components/chat/conflict-alert.tsx
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import type { Conflict } from '@/lib/types'
 
 interface ConflictAlertProps {
@@ -9,28 +8,54 @@ interface ConflictAlertProps {
 export function ConflictAlert({ conflicts }: ConflictAlertProps) {
   if (conflicts.length === 0) return null
   return (
-    <div className="space-y-2 mt-3">
+    <div className="mt-1 space-y-2">
       {conflicts.map((conflict, i) => (
-        <Alert key={i} className="border-yellow-400 bg-yellow-50 dark:bg-yellow-950">
-          <AlertTitle className="text-yellow-800 dark:text-yellow-200 text-sm font-medium">
-            ⚠️ Conflict detected
-          </AlertTitle>
-          <AlertDescription className="text-yellow-700 dark:text-yellow-300 text-xs mt-1 space-y-1">
+        <div
+          key={i}
+          className="border border-[var(--status-conflict)]/25 bg-[var(--status-conflict)]/[0.04]"
+        >
+          {/* Header bar */}
+          <div className="flex items-center gap-2.5 border-b border-[var(--status-conflict)]/15 px-4 py-2.5">
+            <div className="h-3.5 w-0.5 shrink-0 bg-[var(--status-conflict)]" />
+            <span className="font-mono text-[9px] tracking-[0.2em] text-[var(--status-conflict)] uppercase">
+              Conflicto detectado
+            </span>
+          </div>
+
+          {/* Entries */}
+          <div className="space-y-1.5 px-4 py-3">
             {conflict.entries.map((entry, j) => (
-              <div key={j}>
-                <span className="font-medium">{entry.source}</span>
-                {' · '}
-                <span className="opacity-70">{new Date(entry.date).toLocaleDateString()}</span>
-                {': '}
-                <span>{entry.value}</span>
+              <div key={j} className="flex gap-3 text-xs">
+                <span className="text-muted-foreground/45 shrink-0 pt-px font-mono text-[9px] tabular-nums">
+                  {new Date(entry.date).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </span>
+                <span className="text-foreground/75">
+                  <span className="text-foreground/85 font-medium">{entry.source}</span>
+                  <span className="text-muted-foreground/50 mx-1.5">—</span>
+                  {entry.value}
+                </span>
               </div>
             ))}
-            <div className="mt-2 font-medium">
-              Most recent: {conflict.mostRecentSource} → {conflict.mostRecentValue}
+          </div>
+
+          {/* Resolution */}
+          <div className="flex flex-col gap-1 border-t border-[var(--status-conflict)]/15 px-4 py-2.5">
+            <div className="flex items-baseline gap-2 text-xs">
+              <span className="text-muted-foreground/40 shrink-0 font-mono text-[9px] tracking-wider uppercase">
+                Más reciente
+              </span>
+              <span className="text-foreground/80">
+                {conflict.mostRecentSource}: {conflict.mostRecentValue}
+              </span>
             </div>
-            <div className="opacity-80">{conflict.recommendation}</div>
-          </AlertDescription>
-        </Alert>
+            {conflict.recommendation && (
+              <p className="text-muted-foreground/55 text-xs italic">{conflict.recommendation}</p>
+            )}
+          </div>
+        </div>
       ))}
     </div>
   )

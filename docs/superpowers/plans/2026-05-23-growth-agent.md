@@ -70,6 +70,7 @@ __tests__/
 ## Task 1: Install dependencies and set up environment
 
 **Files:**
+
 - Modify: `package.json`
 - Create: `.env.local`
 - Create: `vitest.config.ts`
@@ -91,6 +92,7 @@ npm install -D vitest
 - [ ] **Step 3: Add test script to package.json**
 
 In `package.json`, add inside `"scripts"`:
+
 ```json
 "test": "vitest run"
 ```
@@ -98,6 +100,7 @@ In `package.json`, add inside `"scripts"`:
 - [ ] **Step 4: Create vitest config**
 
 Create `vitest.config.ts` at the project root:
+
 ```typescript
 import { defineConfig } from 'vitest/config'
 
@@ -111,6 +114,7 @@ export default defineConfig({
 - [ ] **Step 5: Create .env.local**
 
 Create `.env.local` at the project root (never commit this file):
+
 ```
 ANTHROPIC_API_KEY=your_anthropic_api_key_here
 ```
@@ -129,6 +133,7 @@ git commit -m "chore: install ai sdk, zod, vitest"
 ## Task 2: Define shared TypeScript types
 
 **Files:**
+
 - Create: `lib/types.ts`
 
 - [ ] **Step 1: Write `lib/types.ts`**
@@ -296,6 +301,7 @@ git commit -m "feat: add shared TypeScript types"
 ## Task 3: Build mock data layer
 
 **Files:**
+
 - Create: `lib/data/clients/client-a.ts`
 - Create: `lib/data/clients/client-b.ts`
 - Create: `lib/data/clients/client-c.ts`
@@ -307,9 +313,17 @@ git commit -m "feat: add shared TypeScript types"
 ```typescript
 // lib/data/clients/client-a.ts
 import type {
-  Client, LinearTask, SlackMessage, MeetingTranscript,
-  CalendarEvent, NotionDoc, DriveFile, GithubActivity,
-  ObsidianNote, PosthogMetrics, WhatsappMessage,
+  Client,
+  LinearTask,
+  SlackMessage,
+  MeetingTranscript,
+  CalendarEvent,
+  NotionDoc,
+  DriveFile,
+  GithubActivity,
+  ObsidianNote,
+  PosthogMetrics,
+  WhatsappMessage,
 } from '@/lib/types'
 
 export const client: Client = {
@@ -320,41 +334,106 @@ export const client: Client = {
 }
 
 export const linearTasks: LinearTask[] = [
-  { id: 'ACM-101', title: 'Checkout flow redesign', status: 'in_progress', assignee: 'maria@agency.com', dueDate: '2026-05-23', updatedAt: '2026-05-19T10:00:00Z' },
-  { id: 'ACM-102', title: 'Payment gateway integration', status: 'todo', assignee: 'carlos@agency.com', dueDate: '2026-05-23', updatedAt: '2026-05-18T09:00:00Z' },
-  { id: 'ACM-103', title: 'Mobile responsive fixes', status: 'todo', assignee: 'ana@agency.com', dueDate: '2026-05-21', updatedAt: '2026-05-17T14:00:00Z' },
-  { id: 'ACM-104', title: 'Analytics dashboard', status: 'done', assignee: 'maria@agency.com', dueDate: '2026-05-15', updatedAt: '2026-05-15T18:00:00Z' },
+  {
+    id: 'ACM-101',
+    title: 'Checkout flow redesign',
+    status: 'in_progress',
+    assignee: 'maria@agency.com',
+    dueDate: '2026-05-23',
+    updatedAt: '2026-05-19T10:00:00Z',
+  },
+  {
+    id: 'ACM-102',
+    title: 'Payment gateway integration',
+    status: 'todo',
+    assignee: 'carlos@agency.com',
+    dueDate: '2026-05-23',
+    updatedAt: '2026-05-18T09:00:00Z',
+  },
+  {
+    id: 'ACM-103',
+    title: 'Mobile responsive fixes',
+    status: 'todo',
+    assignee: 'ana@agency.com',
+    dueDate: '2026-05-21',
+    updatedAt: '2026-05-17T14:00:00Z',
+  },
+  {
+    id: 'ACM-104',
+    title: 'Analytics dashboard',
+    status: 'done',
+    assignee: 'maria@agency.com',
+    dueDate: '2026-05-15',
+    updatedAt: '2026-05-15T18:00:00Z',
+  },
 ]
 
 export const slackMessages: SlackMessage[] = [
-  { channel: '#acme-corp', author: 'carlos@agency.com', text: 'Just checking in on the checkout flow — still on track?', timestamp: '2026-05-18T11:00:00Z' },
-  { channel: '#acme-corp', author: 'maria@agency.com', text: 'Running a bit behind on the redesign, payment integration blocked on API keys from client.', timestamp: '2026-05-18T11:30:00Z' },
+  {
+    channel: '#acme-corp',
+    author: 'carlos@agency.com',
+    text: 'Just checking in on the checkout flow — still on track?',
+    timestamp: '2026-05-18T11:00:00Z',
+  },
+  {
+    channel: '#acme-corp',
+    author: 'maria@agency.com',
+    text: 'Running a bit behind on the redesign, payment integration blocked on API keys from client.',
+    timestamp: '2026-05-18T11:30:00Z',
+  },
 ]
 
 export const meetingTranscripts: MeetingTranscript[] = [
   {
     date: '2026-05-19T10:00:00Z',
     attendees: ['founder-1', 'acme-cto', 'maria@agency.com'],
-    summary: 'Sprint review for Q2 delivery. Client confirmed deadline is Friday May 23. Three tasks still open. Client is concerned about the timeline.',
-    decisions: ['Deadline is hard — May 23 is non-negotiable', 'Payment gateway keys to be sent by Acme by EOD Tuesday'],
+    summary:
+      'Sprint review for Q2 delivery. Client confirmed deadline is Friday May 23. Three tasks still open. Client is concerned about the timeline.',
+    decisions: [
+      'Deadline is hard — May 23 is non-negotiable',
+      'Payment gateway keys to be sent by Acme by EOD Tuesday',
+    ],
     commitments: [
       { owner: 'Acme CTO', item: 'Send payment gateway API keys', dueDate: '2026-05-20' },
-      { owner: 'agency', item: 'Deliver checkout flow + payment + mobile fixes', dueDate: '2026-05-23' },
+      {
+        owner: 'agency',
+        item: 'Deliver checkout flow + payment + mobile fixes',
+        dueDate: '2026-05-23',
+      },
     ],
   },
 ]
 
 export const calendarEvents: CalendarEvent[] = [
-  { title: 'Acme Corp — Sprint Review', date: '2026-05-24T14:00:00Z', attendees: ['founder-1', 'acme-cto'], isUpcoming: true },
-  { title: 'Acme Corp — Weekly Sync', date: '2026-05-19T10:00:00Z', attendees: ['founder-1', 'acme-cto', 'maria@agency.com'], isUpcoming: false },
+  {
+    title: 'Acme Corp — Sprint Review',
+    date: '2026-05-24T14:00:00Z',
+    attendees: ['founder-1', 'acme-cto'],
+    isUpcoming: true,
+  },
+  {
+    title: 'Acme Corp — Weekly Sync',
+    date: '2026-05-19T10:00:00Z',
+    attendees: ['founder-1', 'acme-cto', 'maria@agency.com'],
+    isUpcoming: false,
+  },
 ]
 
 export const notionDocs: NotionDoc[] = [
-  { title: 'Acme Corp — Project Brief', content: 'Full e-commerce redesign. Scope: checkout, payments, mobile. Timeline: Q2 2026.', lastEditedAt: '2026-05-01T09:00:00Z' },
+  {
+    title: 'Acme Corp — Project Brief',
+    content: 'Full e-commerce redesign. Scope: checkout, payments, mobile. Timeline: Q2 2026.',
+    lastEditedAt: '2026-05-01T09:00:00Z',
+  },
 ]
 
 export const driveFiles: DriveFile[] = [
-  { name: 'Acme_Q2_Proposal_v3.pdf', type: 'pdf', lastModifiedAt: '2026-04-15T10:00:00Z', url: 'https://drive.google.com/mock/acme-proposal' },
+  {
+    name: 'Acme_Q2_Proposal_v3.pdf',
+    type: 'pdf',
+    lastModifiedAt: '2026-04-15T10:00:00Z',
+    url: 'https://drive.google.com/mock/acme-proposal',
+  },
 ]
 
 export const githubActivity: GithubActivity = {
@@ -370,7 +449,12 @@ export const githubActivity: GithubActivity = {
 }
 
 export const obsidianNotes: ObsidianNote[] = [
-  { title: 'Acme — Founder Notes', content: 'CTO seems anxious. Deadline risk real. Need to escalate internally if keys not received by Tuesday.', updatedAt: '2026-05-19T21:00:00Z' },
+  {
+    title: 'Acme — Founder Notes',
+    content:
+      'CTO seems anxious. Deadline risk real. Need to escalate internally if keys not received by Tuesday.',
+    updatedAt: '2026-05-19T21:00:00Z',
+  },
 ]
 
 export const posthogMetrics: PosthogMetrics = {
@@ -382,7 +466,12 @@ export const posthogMetrics: PosthogMetrics = {
 }
 
 export const whatsappMessages: WhatsappMessage[] = [
-  { from: 'Acme CTO', text: 'Hey, any updates on the checkout? Board meeting Friday morning.', timestamp: '2026-05-21T08:00:00Z', hasAttachment: false },
+  {
+    from: 'Acme CTO',
+    text: 'Hey, any updates on the checkout? Board meeting Friday morning.',
+    timestamp: '2026-05-21T08:00:00Z',
+    hasAttachment: false,
+  },
 ]
 ```
 
@@ -391,9 +480,17 @@ export const whatsappMessages: WhatsappMessage[] = [
 ```typescript
 // lib/data/clients/client-b.ts
 import type {
-  Client, LinearTask, SlackMessage, MeetingTranscript,
-  CalendarEvent, NotionDoc, DriveFile, GithubActivity,
-  ObsidianNote, PosthogMetrics, WhatsappMessage,
+  Client,
+  LinearTask,
+  SlackMessage,
+  MeetingTranscript,
+  CalendarEvent,
+  NotionDoc,
+  DriveFile,
+  GithubActivity,
+  ObsidianNote,
+  PosthogMetrics,
+  WhatsappMessage,
 } from '@/lib/types'
 
 export const client: Client = {
@@ -404,23 +501,67 @@ export const client: Client = {
 }
 
 export const linearTasks: LinearTask[] = [
-  { id: 'TS-201', title: 'Onboarding flow v2', status: 'done', assignee: 'pedro@agency.com', dueDate: '2026-05-20', updatedAt: '2026-05-20T17:00:00Z' },
-  { id: 'TS-202', title: 'Email drip campaign setup', status: 'done', assignee: 'lucia@agency.com', dueDate: '2026-05-19', updatedAt: '2026-05-19T16:00:00Z' },
-  { id: 'TS-203', title: 'A/B test landing page', status: 'in_progress', assignee: 'pedro@agency.com', dueDate: '2026-05-28', updatedAt: '2026-05-22T10:00:00Z' },
-  { id: 'TS-204', title: 'SEO audit', status: 'todo', assignee: 'lucia@agency.com', dueDate: '2026-05-30', updatedAt: '2026-05-21T09:00:00Z' },
+  {
+    id: 'TS-201',
+    title: 'Onboarding flow v2',
+    status: 'done',
+    assignee: 'pedro@agency.com',
+    dueDate: '2026-05-20',
+    updatedAt: '2026-05-20T17:00:00Z',
+  },
+  {
+    id: 'TS-202',
+    title: 'Email drip campaign setup',
+    status: 'done',
+    assignee: 'lucia@agency.com',
+    dueDate: '2026-05-19',
+    updatedAt: '2026-05-19T16:00:00Z',
+  },
+  {
+    id: 'TS-203',
+    title: 'A/B test landing page',
+    status: 'in_progress',
+    assignee: 'pedro@agency.com',
+    dueDate: '2026-05-28',
+    updatedAt: '2026-05-22T10:00:00Z',
+  },
+  {
+    id: 'TS-204',
+    title: 'SEO audit',
+    status: 'todo',
+    assignee: 'lucia@agency.com',
+    dueDate: '2026-05-30',
+    updatedAt: '2026-05-21T09:00:00Z',
+  },
 ]
 
 export const slackMessages: SlackMessage[] = [
-  { channel: '#techstart', author: 'pedro@agency.com', text: 'Onboarding v2 shipped! Client loved it.', timestamp: '2026-05-20T18:00:00Z' },
-  { channel: '#techstart', author: 'client-ceo@techstart.io', text: 'Amazing work team! The numbers already look better.', timestamp: '2026-05-21T09:00:00Z' },
-  { channel: '#techstart', author: 'lucia@agency.com', text: 'A/B test is live, will share results end of week.', timestamp: '2026-05-22T10:30:00Z' },
+  {
+    channel: '#techstart',
+    author: 'pedro@agency.com',
+    text: 'Onboarding v2 shipped! Client loved it.',
+    timestamp: '2026-05-20T18:00:00Z',
+  },
+  {
+    channel: '#techstart',
+    author: 'client-ceo@techstart.io',
+    text: 'Amazing work team! The numbers already look better.',
+    timestamp: '2026-05-21T09:00:00Z',
+  },
+  {
+    channel: '#techstart',
+    author: 'lucia@agency.com',
+    text: 'A/B test is live, will share results end of week.',
+    timestamp: '2026-05-22T10:30:00Z',
+  },
 ]
 
 export const meetingTranscripts: MeetingTranscript[] = [
   {
     date: '2026-05-21T11:00:00Z',
     attendees: ['account-lead-2', 'techstart-ceo', 'pedro@agency.com'],
-    summary: 'Great sync. Onboarding v2 exceeded expectations — activation rate up 18%. Email campaign performing well. A/B test in progress. Client asked about SEO.',
+    summary:
+      'Great sync. Onboarding v2 exceeded expectations — activation rate up 18%. Email campaign performing well. A/B test in progress. Client asked about SEO.',
     decisions: ['Prioritize SEO audit for next sprint', 'Share A/B results by May 30'],
     commitments: [
       { owner: 'agency', item: 'SEO audit complete by May 30', dueDate: '2026-05-30' },
@@ -430,16 +571,36 @@ export const meetingTranscripts: MeetingTranscript[] = [
 ]
 
 export const calendarEvents: CalendarEvent[] = [
-  { title: 'TechStart — Weekly Growth Sync', date: '2026-05-28T11:00:00Z', attendees: ['account-lead-2', 'techstart-ceo'], isUpcoming: true },
-  { title: 'TechStart — Onboarding Review', date: '2026-05-21T11:00:00Z', attendees: ['account-lead-2', 'techstart-ceo', 'pedro@agency.com'], isUpcoming: false },
+  {
+    title: 'TechStart — Weekly Growth Sync',
+    date: '2026-05-28T11:00:00Z',
+    attendees: ['account-lead-2', 'techstart-ceo'],
+    isUpcoming: true,
+  },
+  {
+    title: 'TechStart — Onboarding Review',
+    date: '2026-05-21T11:00:00Z',
+    attendees: ['account-lead-2', 'techstart-ceo', 'pedro@agency.com'],
+    isUpcoming: false,
+  },
 ]
 
 export const notionDocs: NotionDoc[] = [
-  { title: 'TechStart — Growth Playbook', content: 'Focus areas: onboarding, activation, SEO, paid acquisition. Q2 goal: 25% activation rate increase.', lastEditedAt: '2026-05-10T10:00:00Z' },
+  {
+    title: 'TechStart — Growth Playbook',
+    content:
+      'Focus areas: onboarding, activation, SEO, paid acquisition. Q2 goal: 25% activation rate increase.',
+    lastEditedAt: '2026-05-10T10:00:00Z',
+  },
 ]
 
 export const driveFiles: DriveFile[] = [
-  { name: 'TechStart_OnboardingV2_Results.pdf', type: 'pdf', lastModifiedAt: '2026-05-21T12:00:00Z', url: 'https://drive.google.com/mock/techstart-results' },
+  {
+    name: 'TechStart_OnboardingV2_Results.pdf',
+    type: 'pdf',
+    lastModifiedAt: '2026-05-21T12:00:00Z',
+    url: 'https://drive.google.com/mock/techstart-results',
+  },
 ]
 
 export const githubActivity: GithubActivity = {
@@ -447,13 +608,16 @@ export const githubActivity: GithubActivity = {
   mergedThisWeek: 4,
   openIssues: 2,
   lastCommitAt: '2026-05-22T14:00:00Z',
-  recentPRs: [
-    { title: 'feat: A/B test variant B', state: 'open', author: 'pedro@agency.com' },
-  ],
+  recentPRs: [{ title: 'feat: A/B test variant B', state: 'open', author: 'pedro@agency.com' }],
 }
 
 export const obsidianNotes: ObsidianNote[] = [
-  { title: 'TechStart — Founder Notes', content: 'Best performing client this month. CEO very happy. Opportunity to upsell paid acquisition management.', updatedAt: '2026-05-21T22:00:00Z' },
+  {
+    title: 'TechStart — Founder Notes',
+    content:
+      'Best performing client this month. CEO very happy. Opportunity to upsell paid acquisition management.',
+    updatedAt: '2026-05-21T22:00:00Z',
+  },
 ]
 
 export const posthogMetrics: PosthogMetrics = {
@@ -465,7 +629,12 @@ export const posthogMetrics: PosthogMetrics = {
 }
 
 export const whatsappMessages: WhatsappMessage[] = [
-  { from: 'TechStart CEO', text: 'Quick q — when can we see the A/B results?', timestamp: '2026-05-22T16:00:00Z', hasAttachment: false },
+  {
+    from: 'TechStart CEO',
+    text: 'Quick q — when can we see the A/B results?',
+    timestamp: '2026-05-22T16:00:00Z',
+    hasAttachment: false,
+  },
 ]
 ```
 
@@ -474,9 +643,17 @@ export const whatsappMessages: WhatsappMessage[] = [
 ```typescript
 // lib/data/clients/client-c.ts
 import type {
-  Client, LinearTask, SlackMessage, MeetingTranscript,
-  CalendarEvent, NotionDoc, DriveFile, GithubActivity,
-  ObsidianNote, PosthogMetrics, WhatsappMessage,
+  Client,
+  LinearTask,
+  SlackMessage,
+  MeetingTranscript,
+  CalendarEvent,
+  NotionDoc,
+  DriveFile,
+  GithubActivity,
+  ObsidianNote,
+  PosthogMetrics,
+  WhatsappMessage,
 } from '@/lib/types'
 
 export const client: Client = {
@@ -493,23 +670,63 @@ export const client: Client = {
 // Notion: still documents approach X
 
 export const linearTasks: LinearTask[] = [
-  { id: 'GR-301', title: 'API integration — GraphQL approach', status: 'done', assignee: 'jorge@agency.com', dueDate: '2026-05-21', updatedAt: '2026-05-21T15:00:00Z' },
-  { id: 'GR-302', title: 'Product catalog sync', status: 'in_progress', assignee: 'sofia@agency.com', dueDate: '2026-05-27', updatedAt: '2026-05-22T09:00:00Z' },
-  { id: 'GR-303', title: 'Inventory webhook', status: 'todo', assignee: 'jorge@agency.com', dueDate: '2026-05-29', updatedAt: '2026-05-20T11:00:00Z' },
+  {
+    id: 'GR-301',
+    title: 'API integration — GraphQL approach',
+    status: 'done',
+    assignee: 'jorge@agency.com',
+    dueDate: '2026-05-21',
+    updatedAt: '2026-05-21T15:00:00Z',
+  },
+  {
+    id: 'GR-302',
+    title: 'Product catalog sync',
+    status: 'in_progress',
+    assignee: 'sofia@agency.com',
+    dueDate: '2026-05-27',
+    updatedAt: '2026-05-22T09:00:00Z',
+  },
+  {
+    id: 'GR-303',
+    title: 'Inventory webhook',
+    status: 'todo',
+    assignee: 'jorge@agency.com',
+    dueDate: '2026-05-29',
+    updatedAt: '2026-05-20T11:00:00Z',
+  },
 ]
 
 export const slackMessages: SlackMessage[] = [
-  { channel: '#globalretail', author: 'jorge@agency.com', text: 'Heads up — after looking at the catalog volume, I think we should consider a hybrid REST+GraphQL approach (Z) instead of pure GraphQL. Easier to cache and their CDN supports it better.', timestamp: '2026-05-22T10:00:00Z' },
-  { channel: '#globalretail', author: 'sofia@agency.com', text: 'Agree with Jorge, the GraphQL approach is causing N+1 issues with their catalog size. Hybrid makes more sense.', timestamp: '2026-05-22T10:45:00Z' },
-  { channel: '#globalretail', author: 'account-lead-1@agency.com', text: 'Let\'s align on this in the next sync before changing direction.', timestamp: '2026-05-22T11:00:00Z' },
+  {
+    channel: '#globalretail',
+    author: 'jorge@agency.com',
+    text: 'Heads up — after looking at the catalog volume, I think we should consider a hybrid REST+GraphQL approach (Z) instead of pure GraphQL. Easier to cache and their CDN supports it better.',
+    timestamp: '2026-05-22T10:00:00Z',
+  },
+  {
+    channel: '#globalretail',
+    author: 'sofia@agency.com',
+    text: 'Agree with Jorge, the GraphQL approach is causing N+1 issues with their catalog size. Hybrid makes more sense.',
+    timestamp: '2026-05-22T10:45:00Z',
+  },
+  {
+    channel: '#globalretail',
+    author: 'account-lead-1@agency.com',
+    text: "Let's align on this in the next sync before changing direction.",
+    timestamp: '2026-05-22T11:00:00Z',
+  },
 ]
 
 export const meetingTranscripts: MeetingTranscript[] = [
   {
     date: '2026-05-20T09:00:00Z',
     attendees: ['account-lead-1', 'globalretail-cto', 'jorge@agency.com'],
-    summary: 'API integration planning session. Evaluated REST vs GraphQL. Client CTO strongly prefers REST-based approach for compatibility with their existing infrastructure.',
-    decisions: ['Use REST approach (approach X) for all API integrations', 'Start implementation this week'],
+    summary:
+      'API integration planning session. Evaluated REST vs GraphQL. Client CTO strongly prefers REST-based approach for compatibility with their existing infrastructure.',
+    decisions: [
+      'Use REST approach (approach X) for all API integrations',
+      'Start implementation this week',
+    ],
     commitments: [
       { owner: 'agency', item: 'Implement REST API integration', dueDate: '2026-05-21' },
     ],
@@ -517,16 +734,36 @@ export const meetingTranscripts: MeetingTranscript[] = [
 ]
 
 export const calendarEvents: CalendarEvent[] = [
-  { title: 'GlobalRetail — API Review', date: '2026-05-26T10:00:00Z', attendees: ['account-lead-1', 'globalretail-cto'], isUpcoming: true },
-  { title: 'GlobalRetail — Planning', date: '2026-05-20T09:00:00Z', attendees: ['account-lead-1', 'globalretail-cto', 'jorge@agency.com'], isUpcoming: false },
+  {
+    title: 'GlobalRetail — API Review',
+    date: '2026-05-26T10:00:00Z',
+    attendees: ['account-lead-1', 'globalretail-cto'],
+    isUpcoming: true,
+  },
+  {
+    title: 'GlobalRetail — Planning',
+    date: '2026-05-20T09:00:00Z',
+    attendees: ['account-lead-1', 'globalretail-cto', 'jorge@agency.com'],
+    isUpcoming: false,
+  },
 ]
 
 export const notionDocs: NotionDoc[] = [
-  { title: 'GlobalRetail — Technical Architecture', content: 'API Integration: REST approach (approach X). All endpoints to follow RESTful conventions. See GlobalRetail API spec doc.', lastEditedAt: '2026-05-15T10:00:00Z' },
+  {
+    title: 'GlobalRetail — Technical Architecture',
+    content:
+      'API Integration: REST approach (approach X). All endpoints to follow RESTful conventions. See GlobalRetail API spec doc.',
+    lastEditedAt: '2026-05-15T10:00:00Z',
+  },
 ]
 
 export const driveFiles: DriveFile[] = [
-  { name: 'GlobalRetail_API_Spec_v1.pdf', type: 'pdf', lastModifiedAt: '2026-05-15T10:00:00Z', url: 'https://drive.google.com/mock/globalretail-spec' },
+  {
+    name: 'GlobalRetail_API_Spec_v1.pdf',
+    type: 'pdf',
+    lastModifiedAt: '2026-05-15T10:00:00Z',
+    url: 'https://drive.google.com/mock/globalretail-spec',
+  },
 ]
 
 export const githubActivity: GithubActivity = {
@@ -541,7 +778,12 @@ export const githubActivity: GithubActivity = {
 }
 
 export const obsidianNotes: ObsidianNote[] = [
-  { title: 'GlobalRetail — Founder Notes', content: 'CTO is particular about REST. Need to make sure team is aligned. Jorge tends to over-engineer.', updatedAt: '2026-05-20T22:00:00Z' },
+  {
+    title: 'GlobalRetail — Founder Notes',
+    content:
+      'CTO is particular about REST. Need to make sure team is aligned. Jorge tends to over-engineer.',
+    updatedAt: '2026-05-20T22:00:00Z',
+  },
 ]
 
 export const posthogMetrics: PosthogMetrics = {
@@ -553,7 +795,12 @@ export const posthogMetrics: PosthogMetrics = {
 }
 
 export const whatsappMessages: WhatsappMessage[] = [
-  { from: 'GlobalRetail CTO', text: 'Any update on the REST integration? Want to share progress with our team.', timestamp: '2026-05-22T14:00:00Z', hasAttachment: false },
+  {
+    from: 'GlobalRetail CTO',
+    text: 'Any update on the REST integration? Want to share progress with our team.',
+    timestamp: '2026-05-22T14:00:00Z',
+    hasAttachment: false,
+  },
 ]
 ```
 
@@ -562,9 +809,17 @@ export const whatsappMessages: WhatsappMessage[] = [
 ```typescript
 // lib/data/clients/client-d.ts
 import type {
-  Client, LinearTask, SlackMessage, MeetingTranscript,
-  CalendarEvent, NotionDoc, DriveFile, GithubActivity,
-  ObsidianNote, PosthogMetrics, WhatsappMessage,
+  Client,
+  LinearTask,
+  SlackMessage,
+  MeetingTranscript,
+  CalendarEvent,
+  NotionDoc,
+  DriveFile,
+  GithubActivity,
+  ObsidianNote,
+  PosthogMetrics,
+  WhatsappMessage,
 } from '@/lib/types'
 
 export const client: Client = {
@@ -580,32 +835,73 @@ export const client: Client = {
 // 3. API docs — MISSING (promised in transcript, no Linear task, not started)
 
 export const linearTasks: LinearTask[] = [
-  { id: 'SX-401', title: 'Authentication system (OAuth2)', status: 'done', assignee: 'rafael@agency.com', dueDate: '2026-05-10', updatedAt: '2026-05-10T17:00:00Z' },
-  { id: 'SX-402', title: 'Dashboard v2 — metrics overview', status: 'in_progress', assignee: 'valentina@agency.com', dueDate: '2026-05-30', updatedAt: '2026-05-22T11:00:00Z' },
-  { id: 'SX-403', title: 'Webhook integration', status: 'todo', assignee: 'rafael@agency.com', dueDate: '2026-06-05', updatedAt: '2026-05-21T10:00:00Z' },
+  {
+    id: 'SX-401',
+    title: 'Authentication system (OAuth2)',
+    status: 'done',
+    assignee: 'rafael@agency.com',
+    dueDate: '2026-05-10',
+    updatedAt: '2026-05-10T17:00:00Z',
+  },
+  {
+    id: 'SX-402',
+    title: 'Dashboard v2 — metrics overview',
+    status: 'in_progress',
+    assignee: 'valentina@agency.com',
+    dueDate: '2026-05-30',
+    updatedAt: '2026-05-22T11:00:00Z',
+  },
+  {
+    id: 'SX-403',
+    title: 'Webhook integration',
+    status: 'todo',
+    assignee: 'rafael@agency.com',
+    dueDate: '2026-06-05',
+    updatedAt: '2026-05-21T10:00:00Z',
+  },
 ]
 
 export const slackMessages: SlackMessage[] = [
-  { channel: '#startupxyz', author: 'valentina@agency.com', text: 'Dashboard v2 coming along, should have a preview by end of week.', timestamp: '2026-05-22T09:00:00Z' },
-  { channel: '#startupxyz', author: 'rafael@agency.com', text: 'Auth system shipped and tested. Moving to webhook next.', timestamp: '2026-05-10T18:00:00Z' },
+  {
+    channel: '#startupxyz',
+    author: 'valentina@agency.com',
+    text: 'Dashboard v2 coming along, should have a preview by end of week.',
+    timestamp: '2026-05-22T09:00:00Z',
+  },
+  {
+    channel: '#startupxyz',
+    author: 'rafael@agency.com',
+    text: 'Auth system shipped and tested. Moving to webhook next.',
+    timestamp: '2026-05-10T18:00:00Z',
+  },
 ]
 
 export const meetingTranscripts: MeetingTranscript[] = [
   {
     date: '2026-04-28T10:00:00Z',
     attendees: ['founder-1', 'startupxyz-ceo', 'startupxyz-cto'],
-    summary: 'Monthly planning session. Agreed on three deliverables for May: auth system, dashboard v2, and API documentation.',
-    decisions: ['Auth system to be done by May 10', 'Dashboard v2 by end of May', 'API docs by end of May — critical for their Series A deck'],
+    summary:
+      'Monthly planning session. Agreed on three deliverables for May: auth system, dashboard v2, and API documentation.',
+    decisions: [
+      'Auth system to be done by May 10',
+      'Dashboard v2 by end of May',
+      'API docs by end of May — critical for their Series A deck',
+    ],
     commitments: [
       { owner: 'agency', item: 'Authentication system (OAuth2)', dueDate: '2026-05-10' },
       { owner: 'agency', item: 'Dashboard v2 — metrics overview', dueDate: '2026-05-31' },
-      { owner: 'agency', item: 'API documentation (OpenAPI spec + developer guide)', dueDate: '2026-05-31' },
+      {
+        owner: 'agency',
+        item: 'API documentation (OpenAPI spec + developer guide)',
+        dueDate: '2026-05-31',
+      },
     ],
   },
   {
     date: '2026-05-15T10:00:00Z',
     attendees: ['account-lead-2', 'startupxyz-ceo'],
-    summary: 'Mid-month check-in. Auth done, dashboard on track. CEO asked specifically about API docs for Series A.',
+    summary:
+      'Mid-month check-in. Auth done, dashboard on track. CEO asked specifically about API docs for Series A.',
     decisions: ['API docs remain priority for end of May'],
     commitments: [
       { owner: 'agency', item: 'API documentation delivered by May 31', dueDate: '2026-05-31' },
@@ -614,16 +910,36 @@ export const meetingTranscripts: MeetingTranscript[] = [
 ]
 
 export const calendarEvents: CalendarEvent[] = [
-  { title: 'StartupXYZ — Monthly Review', date: '2026-05-29T10:00:00Z', attendees: ['founder-1', 'startupxyz-ceo', 'startupxyz-cto'], isUpcoming: true },
-  { title: 'StartupXYZ — Check-in', date: '2026-05-15T10:00:00Z', attendees: ['account-lead-2', 'startupxyz-ceo'], isUpcoming: false },
+  {
+    title: 'StartupXYZ — Monthly Review',
+    date: '2026-05-29T10:00:00Z',
+    attendees: ['founder-1', 'startupxyz-ceo', 'startupxyz-cto'],
+    isUpcoming: true,
+  },
+  {
+    title: 'StartupXYZ — Check-in',
+    date: '2026-05-15T10:00:00Z',
+    attendees: ['account-lead-2', 'startupxyz-ceo'],
+    isUpcoming: false,
+  },
 ]
 
 export const notionDocs: NotionDoc[] = [
-  { title: 'StartupXYZ — Deliverables Q2', content: 'May deliverables: Auth system ✅, Dashboard v2 (in progress), API Documentation (pending).', lastEditedAt: '2026-05-01T09:00:00Z' },
+  {
+    title: 'StartupXYZ — Deliverables Q2',
+    content:
+      'May deliverables: Auth system ✅, Dashboard v2 (in progress), API Documentation (pending).',
+    lastEditedAt: '2026-05-01T09:00:00Z',
+  },
 ]
 
 export const driveFiles: DriveFile[] = [
-  { name: 'StartupXYZ_Series_A_Deck.pdf', type: 'pdf', lastModifiedAt: '2026-05-18T10:00:00Z', url: 'https://drive.google.com/mock/startupxyz-deck' },
+  {
+    name: 'StartupXYZ_Series_A_Deck.pdf',
+    type: 'pdf',
+    lastModifiedAt: '2026-05-18T10:00:00Z',
+    url: 'https://drive.google.com/mock/startupxyz-deck',
+  },
 ]
 
 export const githubActivity: GithubActivity = {
@@ -638,7 +954,12 @@ export const githubActivity: GithubActivity = {
 }
 
 export const obsidianNotes: ObsidianNote[] = [
-  { title: 'StartupXYZ — Founder Notes', content: 'API docs are blocking their Series A. If we miss this, it damages trust significantly. Need to assign someone ASAP.', updatedAt: '2026-05-16T20:00:00Z' },
+  {
+    title: 'StartupXYZ — Founder Notes',
+    content:
+      'API docs are blocking their Series A. If we miss this, it damages trust significantly. Need to assign someone ASAP.',
+    updatedAt: '2026-05-16T20:00:00Z',
+  },
 ]
 
 export const posthogMetrics: PosthogMetrics = {
@@ -650,8 +971,18 @@ export const posthogMetrics: PosthogMetrics = {
 }
 
 export const whatsappMessages: WhatsappMessage[] = [
-  { from: 'StartupXYZ CEO', text: 'Any news on the API docs? Investors asking.', timestamp: '2026-05-22T08:00:00Z', hasAttachment: false },
-  { from: 'StartupXYZ CEO', text: 'Also attaching the API spec we need documented', timestamp: '2026-05-22T08:01:00Z', hasAttachment: true },
+  {
+    from: 'StartupXYZ CEO',
+    text: 'Any news on the API docs? Investors asking.',
+    timestamp: '2026-05-22T08:00:00Z',
+    hasAttachment: false,
+  },
+  {
+    from: 'StartupXYZ CEO',
+    text: 'Also attaching the API spec we need documented',
+    timestamp: '2026-05-22T08:01:00Z',
+    hasAttachment: true,
+  },
 ]
 ```
 
@@ -714,6 +1045,7 @@ git commit -m "feat: add mock data layer for all 4 demo clients"
 ## Task 4: Test and build the permissions layer
 
 **Files:**
+
 - Create: `__tests__/permissions.test.ts`
 
 - [ ] **Step 1: Write the failing test**
@@ -765,6 +1097,7 @@ git commit -m "test: add permissions unit tests"
 ## Task 5: Test and build the conflict detector
 
 **Files:**
+
 - Create: `__tests__/conflict-detector.test.ts`
 - Create: `lib/agent/conflict-detector.ts`
 
@@ -783,7 +1116,12 @@ describe('detectConflicts', () => {
 
   it('returns empty array when only one source', () => {
     const results: ToolResult[] = [
-      { toolName: 'get_linear_tasks', clientId: 'client-c', data: { approach: 'REST' }, fetchedAt: '2026-05-21T15:00:00Z' },
+      {
+        toolName: 'get_linear_tasks',
+        clientId: 'client-c',
+        data: { approach: 'REST' },
+        fetchedAt: '2026-05-21T15:00:00Z',
+      },
     ]
     expect(detectConflicts(results)).toEqual([])
   })
@@ -805,7 +1143,9 @@ describe('detectConflicts', () => {
       {
         toolName: 'get_slack_messages',
         clientId: 'client-c',
-        data: [{ text: 'consider hybrid REST+GraphQL approach (Z)', timestamp: '2026-05-22T10:00:00Z' }],
+        data: [
+          { text: 'consider hybrid REST+GraphQL approach (Z)', timestamp: '2026-05-22T10:00:00Z' },
+        ],
         fetchedAt: '2026-05-22T10:00:00Z',
       },
     ]
@@ -816,9 +1156,24 @@ describe('detectConflicts', () => {
 
   it('marks confidence as low when conflict involves 3+ sources', () => {
     const results: ToolResult[] = [
-      { toolName: 'get_meeting_transcripts', clientId: 'client-c', data: { decisions: ['approach X'] }, fetchedAt: '2026-05-20T09:00:00Z' },
-      { toolName: 'get_linear_tasks', clientId: 'client-c', data: [{ title: 'approach Y' }], fetchedAt: '2026-05-21T15:00:00Z' },
-      { toolName: 'get_slack_messages', clientId: 'client-c', data: [{ text: 'approach Z', timestamp: '2026-05-22T10:00:00Z' }], fetchedAt: '2026-05-22T10:00:00Z' },
+      {
+        toolName: 'get_meeting_transcripts',
+        clientId: 'client-c',
+        data: { decisions: ['approach X'] },
+        fetchedAt: '2026-05-20T09:00:00Z',
+      },
+      {
+        toolName: 'get_linear_tasks',
+        clientId: 'client-c',
+        data: [{ title: 'approach Y' }],
+        fetchedAt: '2026-05-21T15:00:00Z',
+      },
+      {
+        toolName: 'get_slack_messages',
+        clientId: 'client-c',
+        data: [{ text: 'approach Z', timestamp: '2026-05-22T10:00:00Z' }],
+        fetchedAt: '2026-05-22T10:00:00Z',
+      },
     ]
     const conflicts = detectConflicts(results)
     expect(conflicts[0].confidence).toBe('low')
@@ -849,9 +1204,7 @@ const DECISION_BEARING_TOOLS = new Set([
 ])
 
 export function detectConflicts(toolResults: ToolResult[]): Conflict[] {
-  const decisionResults = toolResults.filter((r) =>
-    DECISION_BEARING_TOOLS.has(r.toolName),
-  )
+  const decisionResults = toolResults.filter((r) => DECISION_BEARING_TOOLS.has(r.toolName))
 
   if (decisionResults.length < 2) return []
 
@@ -893,8 +1246,7 @@ export function detectConflicts(toolResults: ToolResult[]): Conflict[] {
       mostRecentSource: newest.toolName,
       mostRecentValue: `Most recent data in ${newest.toolName}`,
       confidence: results.length >= 3 ? 'low' : 'medium',
-      recommendation:
-        'Review the most recent source and confirm with the team before proceeding.',
+      recommendation: 'Review the most recent source and confirm with the team before proceeding.',
     })
   }
 
@@ -922,6 +1274,7 @@ git commit -m "feat: add conflict detector with unit tests"
 ## Task 6: Build the 10 tool functions
 
 **Files:**
+
 - Create: `lib/tools/notion.ts`
 - Create: `lib/tools/linear.ts`
 - Create: `lib/tools/slack.ts`
@@ -1073,6 +1426,7 @@ git commit -m "feat: add 10 tool functions over mock data layer"
 ## Task 7: Build the orchestrator and system prompt
 
 **Files:**
+
 - Create: `lib/agent/system-prompt.ts`
 - Create: `lib/agent/orchestrator.ts`
 
@@ -1154,80 +1508,109 @@ export function createAgentStream(
     maxSteps: 15,
     tools: {
       get_notion_docs: tool({
-        description: 'Fetch Notion documents for a client: wikis, proposals, project briefs, and clean meeting notes. Best for strategic context and documented decisions. Freshness: days to weeks.',
+        description:
+          'Fetch Notion documents for a client: wikis, proposals, project briefs, and clean meeting notes. Best for strategic context and documented decisions. Freshness: days to weeks.',
         parameters: z.object({ clientId: clientIdSchema }),
         execute: async ({ clientId }) => getNotionDocs(clientId),
       }),
       get_linear_tasks: tool({
-        description: 'Fetch Linear tasks, bugs, milestones, and cycle status for a client. Best for current operational state: what is being worked on, what is overdue, what is done. Freshness: hours to days.',
+        description:
+          'Fetch Linear tasks, bugs, milestones, and cycle status for a client. Best for current operational state: what is being worked on, what is overdue, what is done. Freshness: hours to days.',
         parameters: z.object({ clientId: clientIdSchema }),
         execute: async ({ clientId }) => getLinearTasks(clientId),
       }),
       get_slack_messages: tool({
-        description: 'Fetch recent Slack messages from a client channel. Best for latest decisions, quick updates, team sentiment, and informal commitments. Freshness: minutes.',
+        description:
+          'Fetch recent Slack messages from a client channel. Best for latest decisions, quick updates, team sentiment, and informal commitments. Freshness: minutes.',
         parameters: z.object({ clientId: clientIdSchema }),
         execute: async ({ clientId }) => getSlackMessages(clientId),
       }),
       get_meeting_transcripts: tool({
-        description: 'Fetch meeting transcripts and AI-generated summaries (Granola/Circleback) for a client. Best for decisions made in meetings, formal commitments, and context behind tasks. Freshness: minutes after each meeting.',
+        description:
+          'Fetch meeting transcripts and AI-generated summaries (Granola/Circleback) for a client. Best for decisions made in meetings, formal commitments, and context behind tasks. Freshness: minutes after each meeting.',
         parameters: z.object({ clientId: clientIdSchema }),
         execute: async ({ clientId }) => getMeetingTranscripts(clientId),
       }),
       get_calendar_events: tool({
-        description: 'Fetch past and upcoming calendar events for a client. Best for temporal context: when was the last meeting, when is the next one, who attended. Freshness: variable.',
+        description:
+          'Fetch past and upcoming calendar events for a client. Best for temporal context: when was the last meeting, when is the next one, who attended. Freshness: variable.',
         parameters: z.object({ clientId: clientIdSchema }),
         execute: async ({ clientId }) => getCalendarEvents(clientId),
       }),
       get_drive_files: tool({
-        description: 'Fetch Google Drive files for a client: decks, proposals, exports, assets. Best for formal deliverables and reference documents. Freshness: weeks.',
+        description:
+          'Fetch Google Drive files for a client: decks, proposals, exports, assets. Best for formal deliverables and reference documents. Freshness: weeks.',
         parameters: z.object({ clientId: clientIdSchema }),
         execute: async ({ clientId }) => getDriveFiles(clientId),
       }),
       get_github_activity: tool({
-        description: 'Fetch GitHub activity for a client repository: open PRs, recent merges, open issues, last commit. Best for technical project state. Freshness: hours.',
+        description:
+          'Fetch GitHub activity for a client repository: open PRs, recent merges, open issues, last commit. Best for technical project state. Freshness: hours.',
         parameters: z.object({ clientId: clientIdSchema }),
         execute: async ({ clientId }) => getGithubActivity(clientId),
       }),
       get_obsidian_notes: tool({
-        description: "Fetch founder's private Obsidian notes for a client. Best for candid context, strategic concerns, and personal prep notes. Freshness: days.",
+        description:
+          "Fetch founder's private Obsidian notes for a client. Best for candid context, strategic concerns, and personal prep notes. Freshness: days.",
         parameters: z.object({ clientId: clientIdSchema }),
         execute: async ({ clientId }) => getObsidianNotes(clientId),
       }),
       get_posthog_metrics: tool({
-        description: 'Fetch real-time product metrics for a client from PostHog: DAU, conversion rate, top events. Best for product health and growth signals. Freshness: real-time.',
+        description:
+          'Fetch real-time product metrics for a client from PostHog: DAU, conversion rate, top events. Best for product health and growth signals. Freshness: real-time.',
         parameters: z.object({ clientId: clientIdSchema }),
         execute: async ({ clientId }) => getPosthogMetrics(clientId),
       }),
       get_whatsapp_messages: tool({
-        description: 'Fetch recent WhatsApp messages from the client channel. Best for urgent client requests, informal updates, and time-sensitive items. Freshness: minutes.',
+        description:
+          'Fetch recent WhatsApp messages from the client channel. Best for urgent client requests, informal updates, and time-sensitive items. Freshness: minutes.',
         parameters: z.object({ clientId: clientIdSchema }),
         execute: async ({ clientId }) => getWhatsappMessages(clientId),
       }),
       finalize_response: tool({
-        description: 'REQUIRED: Call this as the last tool in every response to provide structured metadata: confidence level, detected risks, conflicts between sources, and proposed write-back actions.',
+        description:
+          'REQUIRED: Call this as the last tool in every response to provide structured metadata: confidence level, detected risks, conflicts between sources, and proposed write-back actions.',
         parameters: z.object({
-          confidence: z.enum(['high', 'medium', 'low']).describe('Overall confidence in this response'),
+          confidence: z
+            .enum(['high', 'medium', 'low'])
+            .describe('Overall confidence in this response'),
           confidence_reason: z.string().describe('Brief explanation of why this confidence level'),
-          risks: z.array(z.object({
-            description: z.string(),
-            source: z.string(),
-            severity: z.enum(['high', 'medium', 'low']),
-          })).describe('Detected risks with evidence'),
-          conflicts: z.array(z.object({
-            topic: z.string(),
-            entries: z.array(z.object({ source: z.string(), date: z.string(), value: z.string() })),
-            mostRecentSource: z.string(),
-            mostRecentValue: z.string(),
-            confidence: z.enum(['high', 'medium', 'low']),
-            recommendation: z.string(),
-          })).describe('Conflicts detected between data sources'),
-          proposed_actions: z.array(z.object({
-            type: z.enum(['linear_task', 'slack_draft', 'notion_update']),
-            description: z.string(),
-            previewText: z.string(),
-            data: z.record(z.unknown()),
-          })).describe('Proposed write-back actions requiring user approval'),
-          sources_consulted: z.array(z.string()).describe('List of tool names called during this response'),
+          risks: z
+            .array(
+              z.object({
+                description: z.string(),
+                source: z.string(),
+                severity: z.enum(['high', 'medium', 'low']),
+              }),
+            )
+            .describe('Detected risks with evidence'),
+          conflicts: z
+            .array(
+              z.object({
+                topic: z.string(),
+                entries: z.array(
+                  z.object({ source: z.string(), date: z.string(), value: z.string() }),
+                ),
+                mostRecentSource: z.string(),
+                mostRecentValue: z.string(),
+                confidence: z.enum(['high', 'medium', 'low']),
+                recommendation: z.string(),
+              }),
+            )
+            .describe('Conflicts detected between data sources'),
+          proposed_actions: z
+            .array(
+              z.object({
+                type: z.enum(['linear_task', 'slack_draft', 'notion_update']),
+                description: z.string(),
+                previewText: z.string(),
+                data: z.record(z.unknown()),
+              }),
+            )
+            .describe('Proposed write-back actions requiring user approval'),
+          sources_consulted: z
+            .array(z.string())
+            .describe('List of tool names called during this response'),
         }) satisfies z.ZodType<FinalizeResponseArgs>,
         execute: async (args) => args, // pass-through; UI reads this from message parts
       }),
@@ -1256,6 +1639,7 @@ git commit -m "feat: add orchestrator, system prompt, and finalize_response tool
 ## Task 8: Build the API routes
 
 **Files:**
+
 - Create: `app/api/chat/route.ts`
 - Create: `app/api/actions/route.ts`
 
@@ -1322,6 +1706,7 @@ git commit -m "feat: add /api/chat and /api/actions route handlers"
 ## Task 9: Initialize shadcn/ui and update layout
 
 **Files:**
+
 - Modify: `app/layout.tsx`
 - Modify: `app/globals.css` (shadcn will update this)
 - Add: `components/ui/` (shadcn generates these)
@@ -1333,6 +1718,7 @@ npx shadcn@latest init
 ```
 
 When prompted:
+
 - Style: **Default**
 - Base color: **Zinc**
 - CSS variables: **Yes**
@@ -1380,6 +1766,7 @@ git commit -m "feat: initialize shadcn/ui with zinc theme"
 ## Task 10: Build atomic UI components
 
 **Files:**
+
 - Create: `components/chat/source-badge.tsx`
 - Create: `components/chat/confidence-chip.tsx`
 - Create: `components/chat/conflict-alert.tsx`
@@ -1578,6 +1965,7 @@ git commit -m "feat: add source badge, confidence chip, conflict alert, write-ba
 ## Task 11: Build message components
 
 **Files:**
+
 - Create: `components/chat/message-bubble.tsx`
 - Create: `components/chat/message-list.tsx`
 
@@ -1741,6 +2129,7 @@ git commit -m "feat: add message bubble and message list components"
 ## Task 12: Build the chat input and main container
 
 **Files:**
+
 - Create: `components/chat/chat-input.tsx`
 - Create: `components/chat/chat-container.tsx`
 
@@ -1902,6 +2291,7 @@ git commit -m "feat: add chat input and chat container with useChat"
 ## Task 13: Build the client sidebar and wire main page
 
 **Files:**
+
 - Create: `components/sidebar/client-sidebar.tsx`
 - Modify: `app/page.tsx`
 
@@ -2026,6 +2416,7 @@ npm run dev
 ```
 
 Open `http://localhost:3000`. Expected:
+
 - Sidebar shows 4 clients with colored status dots
 - Chat area shows 5 suggested queries
 - Clicking a suggested query populates the input
@@ -2082,6 +2473,7 @@ git commit -m "chore: link Vercel project"
 ## Self-Review Checklist
 
 ### Spec coverage
+
 - [x] WAYRTTD answered in system prompt (not just answering, acting as PM with judgment)
 - [x] 10 tools all implemented with mock data
 - [x] 4 demo clients covering all evaluation scenarios
@@ -2097,12 +2489,14 @@ git commit -m "chore: link Vercel project"
 - [x] Deployed to Vercel
 
 ### No placeholders
+
 - All code blocks are complete
 - All file paths are exact
 - All commands include expected output
 - No "similar to Task N" references
 
 ### Type consistency
+
 - `ClientId` used consistently across data layer, tools, and orchestrator
 - `FinalizeResponseArgs` matches the Zod schema in orchestrator
 - `UIMessage` imported from `ai` in message-bubble

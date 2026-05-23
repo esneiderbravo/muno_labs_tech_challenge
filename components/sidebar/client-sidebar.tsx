@@ -9,65 +9,102 @@ interface ClientSidebarProps {
   onSelectClient: (id: ClientId | 'all') => void
 }
 
-const INDUSTRY_EMOJI: Record<string, string> = {
-  'E-commerce': '🛍',
-  'SaaS': '⚡',
-  'Retail': '🏪',
-  'Fintech': '💳',
+const STATUS_CONFIG: Record<
+  ClientId,
+  { borderColor: string; dotColor: string; label: string; pulse?: boolean }
+> = {
+  vivamart: {
+    borderColor: 'border-l-[var(--status-risk)]',
+    dotColor: 'bg-[var(--status-risk)]',
+    label: 'En riesgo',
+    pulse: true,
+  },
+  clarix: {
+    borderColor: 'border-l-[var(--status-healthy)]',
+    dotColor: 'bg-[var(--status-healthy)]',
+    label: 'Saludable',
+  },
+  cornerstone: {
+    borderColor: 'border-l-[var(--status-conflict)]',
+    dotColor: 'bg-[var(--status-conflict)]',
+    label: 'Conflicto',
+  },
+  paylane: {
+    borderColor: 'border-l-[var(--status-pending)]',
+    dotColor: 'bg-[var(--status-pending)]',
+    label: 'Pendiente',
+  },
 }
 
-const STATUS_HINT: Record<ClientId, { color: string; hint: string }> = {
-  'client-a': { color: 'bg-red-400', hint: 'At risk' },
-  'client-b': { color: 'bg-green-400', hint: 'Healthy' },
-  'client-c': { color: 'bg-yellow-400', hint: 'Conflict' },
-  'client-d': { color: 'bg-orange-400', hint: 'Pending commitment' },
-}
+const STATUS_LEGEND = [
+  { dotColor: 'bg-[var(--status-risk)]', label: 'En riesgo' },
+  { dotColor: 'bg-[var(--status-healthy)]', label: 'Saludable' },
+  { dotColor: 'bg-[var(--status-conflict)]', label: 'Conflicto' },
+  { dotColor: 'bg-[var(--status-pending)]', label: 'Pendiente' },
+]
 
 export function ClientSidebar({ selectedClientId, onSelectClient }: ClientSidebarProps) {
   const clients = getAllClients()
 
   return (
-    <div className="w-56 shrink-0 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col">
-      <div className="px-3 py-4 border-b border-zinc-200 dark:border-zinc-800">
-        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Clients</p>
+    <div className="border-border bg-sidebar fixed top-0 bottom-0 left-0 z-20 flex w-52 flex-col border-r">
+      {/* Header */}
+      <div className="border-border border-b px-4 py-5">
+        <p className="text-muted-foreground font-mono text-[10px] tracking-[0.2em] uppercase">
+          Clientes
+        </p>
       </div>
 
-      <nav className="flex-1 p-2 space-y-1">
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto py-2">
         <button
           onClick={() => onSelectClient('all')}
           className={cn(
-            'w-full text-left px-3 py-2 rounded-lg text-sm transition-colors',
+            'w-full border-l-2 py-2.5 pr-3 pl-4 text-left text-sm transition-colors duration-150',
             selectedClientId === 'all'
-              ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium'
-              : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900',
+              ? 'text-foreground border-l-[var(--accent-gold)] bg-[oklch(1_0_0_/_4%)]'
+              : 'text-muted-foreground hover:text-foreground border-l-transparent hover:bg-[oklch(1_0_0_/_2%)]',
           )}
         >
-          🏢 All clients
+          <span className={cn('font-medium', selectedClientId === 'all' ? '' : '')}>
+            Todos los clientes
+          </span>
         </button>
 
-        {clients.map(client => {
-          const status = STATUS_HINT[client.id as ClientId]
-          const emoji = INDUSTRY_EMOJI[client.industry] ?? '🏢'
+        <div className="border-border mx-4 my-2 border-t" />
+
+        {clients.map((client) => {
+          const status = STATUS_CONFIG[client.id as ClientId]
           const isSelected = selectedClientId === client.id
           return (
             <button
               key={client.id}
               onClick={() => onSelectClient(client.id as ClientId)}
               className={cn(
-                'w-full text-left px-3 py-2 rounded-lg text-sm transition-colors',
+                'group w-full border-l-2 py-2.5 pr-3 pl-4 text-left text-sm transition-colors duration-150',
                 isSelected
-                  ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900',
+                  ? cn(
+                      'text-foreground bg-[oklch(1_0_0_/_4%)]',
+                      status?.borderColor ?? 'border-l-[var(--accent-gold)]',
+                    )
+                  : 'text-muted-foreground hover:text-foreground border-l-transparent hover:bg-[oklch(1_0_0_/_2%)]',
               )}
             >
-              <div className="flex items-center justify-between">
-                <span>{emoji} {client.name}</span>
-                <span
-                  className={cn('w-2 h-2 rounded-full shrink-0', status.color)}
-                  title={status.hint}
-                />
+              <div className="flex items-center justify-between gap-2">
+                <span className="truncate font-medium">{client.name}</span>
+                {status && (
+                  <span
+                    className={cn(
+                      'h-1.5 w-1.5 shrink-0 rounded-sm transition-opacity',
+                      status.dotColor,
+                      !isSelected && 'opacity-50 group-hover:opacity-80',
+                      status.pulse && 'animate-status-pulse',
+                    )}
+                    title={status.label}
+                  />
+                )}
               </div>
-              <div className={cn('text-xs mt-0.5', isSelected ? 'opacity-70' : 'text-zinc-400')}>
+              <div className="text-muted-foreground/60 mt-0.5 truncate font-mono text-[10px]">
                 {client.industry}
               </div>
             </button>
@@ -75,14 +112,18 @@ export function ClientSidebar({ selectedClientId, onSelectClient }: ClientSideba
         })}
       </nav>
 
-      <div className="px-3 py-3 border-t border-zinc-200 dark:border-zinc-800">
-        <div className="flex gap-3 text-xs text-zinc-400">
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-red-400 inline-block" /> At risk
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-green-400 inline-block" /> OK
-          </span>
+      {/* Status legend */}
+      <div className="border-border border-t px-4 py-3">
+        <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+          {STATUS_LEGEND.map(({ dotColor, label }) => (
+            <span
+              key={label}
+              className="text-muted-foreground/50 flex items-center gap-1.5 font-mono text-[9px] tracking-wider uppercase"
+            >
+              <span className={cn('h-1.5 w-1.5 shrink-0 rounded-sm', dotColor)} />
+              {label}
+            </span>
+          ))}
         </div>
       </div>
     </div>
