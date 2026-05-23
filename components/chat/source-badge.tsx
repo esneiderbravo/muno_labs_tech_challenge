@@ -25,7 +25,7 @@ export function SourceBadge({ toolName }: SourceBadgeProps) {
       className="border-border text-muted-foreground/60 hover:text-muted-foreground cursor-default border px-1.5 py-px font-mono text-[9px] tracking-[0.15em] uppercase transition-colors duration-150 hover:border-[var(--accent-gold)]/35"
       title={info.label}
     >
-      {info.abbr}
+      {info.label}
     </span>
   )
 }

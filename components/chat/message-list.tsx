@@ -101,7 +101,7 @@ export function MessageList({ messages, isLoading, liveTools: liveToolsFromChat 
                         className="border-border text-muted-foreground/65 inline-flex items-center gap-1.5 border px-1.5 py-px font-mono text-[9px] tracking-[0.12em] uppercase"
                         title={info.label}
                       >
-                        <span>{info.abbr}</span>
+                        <span>{info.label}</span>
                         <span className="text-muted-foreground/45">•</span>
                         <span>{getToolExecutionLabel(state)}</span>
                       </span>
