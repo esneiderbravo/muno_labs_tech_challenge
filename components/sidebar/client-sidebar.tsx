@@ -78,6 +78,12 @@ const STATUS_LEGEND = [
   { dotColor: 'bg-[var(--status-pending)]', label: 'Pendiente' },
 ]
 
+/**
+ * Render the client selector sidebar with status indicators.
+ *
+ * @param props - Available clients, scope controls, and selection handler.
+ * @returns Sidebar navigation for client context switching.
+ */
 export function ClientSidebar({
   clients,
   canViewAll,

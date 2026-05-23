@@ -11,6 +11,12 @@ const DECISION_BEARING_TOOLS = new Set([
 
 const MAX_RECURSION_DEPTH = 4
 
+/**
+ * Normalize text to improve semantic comparison across sources.
+ *
+ * @param value - Raw text value to normalize.
+ * @returns Canonicalized text for matching.
+ */
 function normalizeText(value: string): string {
   return value
     .normalize('NFD')
@@ -21,6 +27,13 @@ function normalizeText(value: string): string {
     .trim()
 }
 
+/**
+ * Recursively extract non-empty strings from nested data.
+ *
+ * @param value - Unknown data payload from a tool.
+ * @param depth - Current recursion depth.
+ * @returns Flattened string values found in the payload.
+ */
 function extractStrings(value: unknown, depth = 0): string[] {
   if (depth > MAX_RECURSION_DEPTH) return []
   if (typeof value === 'string') return value.trim().length > 0 ? [value.trim()] : []
@@ -31,6 +44,12 @@ function extractStrings(value: unknown, depth = 0): string[] {
   return []
 }
 
+/**
+ * Convert a tool payload into analyzable text snippets.
+ *
+ * @param result - Tool result item with source metadata and payload.
+ * @returns Text snippets that can express implementation stances.
+ */
 function getTextsForTool(result: ToolResult): string[] {
   if (result.toolName === 'get_linear_tasks') {
     const tasks = Array.isArray(result.data) ? (result.data as Array<{ title?: unknown }>) : []
@@ -73,6 +92,12 @@ function getTextsForTool(result: ToolResult): string[] {
   return extractStrings(result.data)
 }
 
+/**
+ * Extract stance markers from a text snippet.
+ *
+ * @param text - Source text to analyze.
+ * @returns Detected implementation stances.
+ */
 function extractStancesFromText(text: string): string[] {
   const normalized = normalizeText(text)
   const stances = new Set<string>()
@@ -110,6 +135,12 @@ function normalizeStance(value: string): string {
   return normalizeText(value)
 }
 
+/**
+ * Deduplicate stances while preserving original order.
+ *
+ * @param values - Candidate stance values.
+ * @returns Unique stance values.
+ */
 function uniqueStances(values: string[]): string[] {
   const seen = new Set<string>()
   const unique: string[] = []
@@ -124,6 +155,12 @@ function uniqueStances(values: string[]): string[] {
   return unique
 }
 
+/**
+ * Summarize stance and evidence for a single source result.
+ *
+ * @param result - Tool result to summarize.
+ * @returns Stance list and representative evidence text.
+ */
 function summarizeSourceStance(result: ToolResult): { stances: string[]; evidence: string } {
   const texts = getTextsForTool(result)
   const stances = uniqueStances(texts.flatMap((text) => extractStancesFromText(text)))
@@ -131,6 +168,12 @@ function summarizeSourceStance(result: ToolResult): { stances: string[]; evidenc
   return { stances, evidence }
 }
 
+/**
+ * Detect conflicting implementation stances across decision-bearing tools.
+ *
+ * @param toolResults - Tool outputs collected during a model turn.
+ * @returns Structured conflicts grouped by client.
+ */
 export function detectConflicts(toolResults: ToolResult[]): Conflict[] {
   const decisionResults = toolResults.filter((r) => DECISION_BEARING_TOOLS.has(r.toolName))
 

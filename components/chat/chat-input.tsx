@@ -9,6 +9,12 @@ interface ChatInputProps {
   onSubmit: () => void
 }
 
+/**
+ * Render the chat composer with enter-to-send behavior.
+ *
+ * @param props - Input value, loading state, and message handlers.
+ * @returns Chat input section for composing messages.
+ */
 export function ChatInput({ input, isLoading, onChange, onSubmit }: ChatInputProps) {
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {

@@ -17,6 +17,12 @@ type DynamicToolPart = {
   state?: string
 }
 
+/**
+ * Extract the latest dynamic tool states from assistant messages.
+ *
+ * @param messages - Full UI message history.
+ * @returns Tool states keyed by tool name.
+ */
 function getLiveToolStates(messages: UIMessage[]): Array<{ toolName: string; state: string }> {
   const lastAssistant = [...messages].reverse().find((message) => message.role === 'assistant')
   if (!lastAssistant?.parts?.length) return []
@@ -33,12 +39,24 @@ function getLiveToolStates(messages: UIMessage[]): Array<{ toolName: string; sta
   return [...byTool.entries()].map(([toolName, state]) => ({ toolName, state }))
 }
 
+/**
+ * Convert a dynamic tool state into a localized status label.
+ *
+ * @param state - Dynamic tool execution state.
+ * @returns Human-readable label for UI display.
+ */
 function getToolExecutionLabel(state: string): string {
   if (state === 'output-available') return 'Completada'
   if (state === 'output-error') return 'Error'
   return 'Ejecutando'
 }
 
+/**
+ * Render chat messages, streaming state, and live tool execution chips.
+ *
+ * @param props - Message collection, loading state, and optional live tool states.
+ * @returns Scrollable message timeline.
+ */
 export function MessageList({ messages, isLoading, liveTools: liveToolsFromChat = [] }: MessageListProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)

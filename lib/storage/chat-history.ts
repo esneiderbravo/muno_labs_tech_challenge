@@ -6,18 +6,40 @@ import type { ChatThreadSummary, ClientId, UIMessage } from '@/lib/types'
 const STORAGE_DIR = path.join(process.cwd(), '.data', 'chat-history')
 const DEFAULT_CHAT_TITLE = 'Nueva conversación'
 
+/**
+ * Build file path for legacy single-thread chat history storage.
+ *
+ * @param userId - User identifier that owns the history.
+ * @param clientId - Client scope for the history.
+ * @returns Absolute path to legacy history file.
+ */
 function getLegacyHistoryFilePath(userId: string, clientId: ClientId | 'all'): string {
   const safeUserId = encodeURIComponent(userId)
   const safeClientId = encodeURIComponent(clientId)
   return path.join(STORAGE_DIR, `${safeUserId}__${safeClientId}.json`)
 }
 
+/**
+ * Build file path for the chat thread index file.
+ *
+ * @param userId - User identifier that owns the history.
+ * @param clientId - Client scope for the history.
+ * @returns Absolute path to index file.
+ */
 function getChatIndexFilePath(userId: string, clientId: ClientId | 'all'): string {
   const safeUserId = encodeURIComponent(userId)
   const safeClientId = encodeURIComponent(clientId)
   return path.join(STORAGE_DIR, `${safeUserId}__${safeClientId}__index.json`)
 }
 
+/**
+ * Build file path for a specific chat thread message file.
+ *
+ * @param userId - User identifier that owns the history.
+ * @param clientId - Client scope for the history.
+ * @param chatId - Chat thread identifier.
+ * @returns Absolute path to chat message file.
+ */
 function getChatHistoryFilePath(userId: string, clientId: ClientId | 'all', chatId: string): string {
   const safeUserId = encodeURIComponent(userId)
   const safeClientId = encodeURIComponent(clientId)
@@ -25,6 +47,12 @@ function getChatHistoryFilePath(userId: string, clientId: ClientId | 'all', chat
   return path.join(STORAGE_DIR, `${safeUserId}__${safeClientId}__${safeChatId}.json`)
 }
 
+/**
+ * Derive a chat title from the first user-authored text part.
+ *
+ * @param messages - Chat message list to inspect.
+ * @returns Trimmed title candidate when available.
+ */
 function getFirstUserText(messages: UIMessage[]): string | null {
   const firstUserMessage = messages.find((message) => message.role === 'user')
   if (!firstUserMessage) return null
@@ -100,6 +128,13 @@ async function migrateLegacyHistoryIfNeeded(
   }
 }
 
+/**
+ * Read and sort all chat threads available for a user and client scope.
+ *
+ * @param userId - User identifier that owns the chats.
+ * @param clientId - Client scope for the chats.
+ * @returns Chat summaries ordered by most recently updated.
+ */
 export async function listUserChats(
   userId: string,
   clientId: ClientId | 'all',
@@ -108,6 +143,14 @@ export async function listUserChats(
   return chats.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
 }
 
+/**
+ * Create a new empty chat thread for a user and client scope.
+ *
+ * @param userId - User identifier that owns the chat.
+ * @param clientId - Client scope for the chat.
+ * @param title - Optional explicit title for the new chat.
+ * @returns Newly created chat summary.
+ */
 export async function createUserChat(
   userId: string,
   clientId: ClientId | 'all',
@@ -128,6 +171,14 @@ export async function createUserChat(
   return chat
 }
 
+/**
+ * Load chats and messages for the selected thread, creating one when needed.
+ *
+ * @param userId - User identifier that owns the chats.
+ * @param clientId - Client scope for the chats.
+ * @param preferredChatId - Preferred chat identifier to load.
+ * @returns Active chat id, available chats, and loaded messages.
+ */
 export async function loadChatHistory(
   userId: string,
   clientId: ClientId | 'all',
@@ -147,6 +198,15 @@ export async function loadChatHistory(
   return { chatId: selectedChat.id, chats, messages }
 }
 
+/**
+ * Persist chat messages and update metadata for the active thread.
+ *
+ * @param userId - User identifier that owns the chat.
+ * @param clientId - Client scope for the chat.
+ * @param chatId - Chat identifier being updated.
+ * @param messages - Full message list to persist.
+ * @returns Updated chat summaries ordered by recency.
+ */
 export async function saveChatHistory(
   userId: string,
   clientId: ClientId | 'all',
@@ -181,6 +241,14 @@ export async function saveChatHistory(
   return nextChats
 }
 
+/**
+ * Delete a chat thread and resolve the next active thread selection.
+ *
+ * @param userId - User identifier that owns the chat.
+ * @param clientId - Client scope for the chat.
+ * @param chatId - Chat identifier to delete.
+ * @returns Remaining chats and the active chat id after deletion.
+ */
 export async function deleteUserChat(
   userId: string,
   clientId: ClientId | 'all',

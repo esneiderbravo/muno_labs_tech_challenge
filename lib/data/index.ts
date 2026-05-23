@@ -24,14 +24,32 @@ const registry = {
   trackflow,
 } as const
 
+/**
+ * Return the full dataset bundle for a specific client.
+ *
+ * @param id - Stable client identifier.
+ * @returns Client data module with channel-specific datasets.
+ */
 export function getClient(id: ClientId) {
   return registry[id]
 }
 
+/**
+ * List all clients available in the in-memory registry.
+ *
+ * @returns Client records used by the UI and access checks.
+ */
 export function getAllClients(): Client[] {
   return Object.values(registry).map((r) => r.client)
 }
 
+/**
+ * Resolve clients a user is allowed to access based on role assignment.
+ *
+ * @param userId - Authenticated user identifier.
+ * @param role - User role used for access policy decisions.
+ * @returns Clients visible to the user.
+ */
 export function getClientsByUser(userId: string, role: UserRole): Client[] {
   const all = getAllClients()
   if (role === 'founder') return all
@@ -56,14 +74,33 @@ const DEMO_USERS: UserIdentity[] = [
   },
 ]
 
+/**
+ * Find a demo user identity by identifier.
+ *
+ * @param userId - User identifier to resolve.
+ * @returns Matching user identity when found.
+ */
 export function getUserById(userId: string): UserIdentity | undefined {
   return DEMO_USERS.find((user) => user.id === userId)
 }
 
+/**
+ * Return all demo identities available for local switching.
+ *
+ * @returns Demo user records.
+ */
 export function getAllDemoUsers(): UserIdentity[] {
   return DEMO_USERS
 }
 
+/**
+ * Check whether a user can access a specific client scope.
+ *
+ * @param userId - Authenticated user identifier.
+ * @param role - User role used for access policy decisions.
+ * @param clientId - Requested client scope, including the cross-client scope.
+ * @returns True when access is allowed for the requested scope.
+ */
 export function canUserAccessClient(
   userId: string,
   role: UserRole,

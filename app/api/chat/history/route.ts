@@ -8,6 +8,12 @@ import {
 } from '@/lib/storage/chat-history'
 import type { ChatRequestBody, ClientId, UIMessage } from '@/lib/types'
 
+/**
+ * Validate that a value maps to a supported chat history scope.
+ *
+ * @param value - Raw scope value from query params or request body.
+ * @returns True when the value is a recognized client scope.
+ */
 function isValidClientScope(value: string): value is ClientId | 'all' {
   return [
     'all',
@@ -24,6 +30,12 @@ function isValidClientScope(value: string): value is ClientId | 'all' {
   ].includes(value)
 }
 
+/**
+ * Load chat history for a user and client scope.
+ *
+ * @param req - Incoming request containing user and scope query params.
+ * @returns Chat history payload or validation/access error.
+ */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const userId = searchParams.get('userId')
@@ -43,6 +55,12 @@ export async function GET(req: Request) {
   return Response.json(history)
 }
 
+/**
+ * Persist messages for an existing chat thread.
+ *
+ * @param req - Incoming request containing chat history payload.
+ * @returns Updated chat list or validation/access error.
+ */
 export async function PUT(req: Request) {
   const body = (await req.json()) as {
     userId: string
@@ -71,6 +89,12 @@ export async function PUT(req: Request) {
   return Response.json({ success: true, chats })
 }
 
+/**
+ * Create a new chat thread for a user and client scope.
+ *
+ * @param req - Incoming request containing user, scope, and optional title.
+ * @returns Created chat plus refreshed chat list.
+ */
 export async function POST(req: Request) {
   const body = (await req.json()) as {
     userId: string
@@ -93,6 +117,12 @@ export async function POST(req: Request) {
   return Response.json({ chat, chats })
 }
 
+/**
+ * Delete a chat thread and return the next active thread state.
+ *
+ * @param req - Incoming request containing user, scope, and chat identifier.
+ * @returns Updated thread selection or validation/access error.
+ */
 export async function DELETE(req: Request) {
   const body = (await req.json()) as {
     userId: string

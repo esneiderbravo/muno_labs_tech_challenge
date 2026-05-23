@@ -173,6 +173,11 @@ function deleteLocalChat(
   return { chats: sorted, activeChatId: sorted[0].id }
 }
 
+/**
+ * Render the full chat workspace including scope selection and history controls.
+ *
+ * @returns Interactive chat experience for demo users and client scopes.
+ */
 export function ChatContainer() {
   const [liveToolStates, setLiveToolStates] = useState<Record<string, 'executing' | 'completed' | 'error'>>({})
   const [selectedUserId, setSelectedUserId] = useState(DEMO_USER.id)

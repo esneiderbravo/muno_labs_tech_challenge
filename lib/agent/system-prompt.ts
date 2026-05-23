@@ -1,6 +1,12 @@
 // lib/agent/system-prompt.ts
 import type { Conflict } from '@/lib/types'
 
+/**
+ * Build the system prompt used by the orchestration model.
+ *
+ * @param conflicts - Pre-detected source conflicts to inject as context.
+ * @returns Full system instruction text for the model.
+ */
 export function buildSystemPrompt(conflicts: Conflict[]): string {
   const conflictContext =
     conflicts.length > 0

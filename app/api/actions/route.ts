@@ -1,6 +1,12 @@
 // app/api/actions/route.ts
 import type { ProposedAction } from '@/lib/types'
 
+/**
+ * Execute a proposed write-back action against mock integrations.
+ *
+ * @param req - Incoming request that includes the selected action payload.
+ * @returns JSON response with execution status and user-facing message.
+ */
 export async function POST(req: Request) {
   const { action } = (await req.json()) as { action: ProposedAction }
 

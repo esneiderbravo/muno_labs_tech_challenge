@@ -51,6 +51,12 @@ interface AgentScope {
 type OpenAIModelCandidate = { name: string; model: LanguageModel }
 const modelCooldownByName = new Map<string, number>()
 
+/**
+ * Parse model retry delay from provider rate-limit messages.
+ *
+ * @param message - Error message returned by the model provider.
+ * @returns Parsed delay in milliseconds when available.
+ */
 const parseRetryDelayMs = (message: string): number | undefined => {
   const match = message.match(/in\s+(?:(\d+)m)?([\d.]+)s/i)
   if (!match) return undefined
@@ -59,6 +65,12 @@ const parseRetryDelayMs = (message: string): number | undefined => {
   return (minutes * 60 + seconds) * 1000
 }
 
+/**
+ * Mark a model as temporarily unavailable when rate limited.
+ *
+ * @param modelName - Model identifier to cool down.
+ * @param error - Error object produced by the provider call.
+ */
 const markModelCooldownIfRateLimited = (modelName: string, error: unknown) => {
   const message = error instanceof Error ? error.message : String(error)
   if (!/rate limit/i.test(message)) return
@@ -70,6 +82,12 @@ const markModelCooldownIfRateLimited = (modelName: string, error: unknown) => {
 const isModelCoolingDown = (modelName: string): boolean =>
   (modelCooldownByName.get(modelName) ?? 0) > Date.now()
 
+/**
+ * Choose the first available model from primary and fallback candidates.
+ *
+ * @returns Selected model metadata and provider instance.
+ * @throws Error When no provider API key is configured.
+ */
 const selectModel = () => {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error('No AI provider configured. Set OPENAI_API_KEY.')
@@ -92,6 +110,13 @@ const selectModel = () => {
   return active ?? available[0]
 }
 
+/**
+ * Create a scoped agent stream with tool execution and conflict tracking.
+ *
+ * @param messages - Model-ready chat messages.
+ * @param scope - Client access scope for the current user session.
+ * @returns Streaming text result with registered tools.
+ */
 export function createAgentStream(messages: ModelMessage[], scope: AgentScope) {
   const toolResults: ToolResult[] = []
   const allowedClientIds = new Set(scope.allowedClientIds)

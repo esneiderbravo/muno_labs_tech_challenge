@@ -4,6 +4,12 @@ import { createAgentStream } from '@/lib/agent/orchestrator'
 import { canUserAccessClient, getAllClients, getClientsByUser, getUserById } from '@/lib/data'
 import type { ChatRequestBody } from '@/lib/types'
 
+/**
+ * Normalize text for case-insensitive and accent-insensitive matching.
+ *
+ * @param value - Raw text input to normalize.
+ * @returns Normalized text suitable for mention detection.
+ */
 function normalizeForMatch(value: string): string {
   return value
     .normalize('NFD')
@@ -14,6 +20,12 @@ function normalizeForMatch(value: string): string {
     .trim()
 }
 
+/**
+ * Collect and normalize user-authored text from a chat request.
+ *
+ * @param messages - Conversation messages from the request body.
+ * @returns Normalized concatenated user text.
+ */
 function getConversationUserText(messages: ChatRequestBody['messages']): string {
   const userMessages = messages.filter((message) => message.role === 'user')
   if (userMessages.length === 0) return ''
@@ -31,6 +43,12 @@ function getConversationUserText(messages: ChatRequestBody['messages']): string 
   return normalizeForMatch(text)
 }
 
+/**
+ * Handle chat requests, enforce client scope access, and stream agent output.
+ *
+ * @param req - Incoming request with chat messages and scope metadata.
+ * @returns Streaming UI message response or access error response.
+ */
 export async function POST(req: Request) {
   const body = (await req.json()) as ChatRequestBody
   const { messages, clientId, userId } = body
