@@ -1,6 +1,6 @@
 // components/chat/source-badge.tsx
 
-const TOOL_LABELS: Record<string, { label: string; abbr: string }> = {
+export const TOOL_LABELS: Record<string, { label: string; abbr: string }> = {
   get_notion_docs: { label: 'Notion', abbr: 'NOT' },
   get_linear_tasks: { label: 'Linear', abbr: 'LIN' },
   get_slack_messages: { label: 'Slack', abbr: 'SLK' },

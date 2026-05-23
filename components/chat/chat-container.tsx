@@ -174,6 +174,7 @@ function deleteLocalChat(
 }
 
 export function ChatContainer() {
+  const [liveToolStates, setLiveToolStates] = useState<Record<string, 'executing' | 'completed' | 'error'>>({})
   const [selectedUserId, setSelectedUserId] = useState(DEMO_USER.id)
   const selectedUser = getUserById(selectedUserId) ?? DEMO_USER
   const demoUsers = getAllDemoUsers()
@@ -230,10 +231,17 @@ export function ChatContainer() {
       api: '/api/chat',
       body: { userId: selectedUser.id, clientId: effectiveSelectedClientId },
     }),
+    onToolCall: ({ toolCall }) => {
+      const name = 'toolName' in toolCall ? toolCall.toolName : undefined
+      if (!name || name === 'finalize_response') return
+      setLiveToolStates((current) => ({ ...current, [name]: 'executing' }))
+    },
     onFinish: ({ messages: nextMessages }) => {
       persistHistory(nextMessages)
+      setLiveToolStates({})
     },
     onError: () => {
+      setLiveToolStates({})
       setMessages((current) => [
         ...current,
         createAssistantTextMessage('No hay información disponible sobre ese cliente.'),
@@ -242,6 +250,7 @@ export function ChatContainer() {
   })
 
   const isLoading = status === 'submitted' || status === 'streaming'
+  const liveTools = Object.entries(liveToolStates).map(([toolName, state]) => ({ toolName, state }))
   const selectedClientLabel =
     effectiveSelectedClientId === 'all'
       ? 'Todos los clientes'
@@ -295,6 +304,7 @@ export function ChatContainer() {
   const handleUserChange = (nextUserId: string) => {
     stop()
     clearError()
+    setLiveToolStates({})
     setMessages([])
     setInput('')
     setChats([])
@@ -308,6 +318,7 @@ export function ChatContainer() {
   const handleClientChange = (nextClientId: ClientId | 'all') => {
     stop()
     clearError()
+    setLiveToolStates({})
     setMessages([])
     setInput('')
     setChats([])
@@ -320,6 +331,7 @@ export function ChatContainer() {
     if (!nextChatId || nextChatId === selectedChatId) return
     stop()
     clearError()
+    setLiveToolStates({})
     setMessages([])
     setInput('')
     setSelectedChatId(nextChatId)
@@ -329,6 +341,7 @@ export function ChatContainer() {
   const handleNewChat = () => {
     stop()
     clearError()
+    setLiveToolStates({})
     setMessages([])
     setInput('')
     setOpenMenu(null)
@@ -342,6 +355,7 @@ export function ChatContainer() {
 
     stop()
     clearError()
+    setLiveToolStates({})
     setInput('')
 
     const payload = deleteLocalChat(selectedUser.id, effectiveSelectedClientId, chatIdToDelete)
@@ -385,6 +399,50 @@ export function ChatContainer() {
     selectedUser.id,
     setMessages,
   ])
+
+  useEffect(() => {
+    if (!isLoading) {
+      queueMicrotask(() => {
+        setLiveToolStates((current) => (Object.keys(current).length > 0 ? {} : current))
+      })
+      return
+    }
+
+    const lastAssistant = [...messages].reverse().find((message) => message.role === 'assistant')
+    if (!lastAssistant?.parts?.length) return
+
+    const toolParts = lastAssistant.parts.filter((part) => part.type === 'dynamic-tool') as Array<{
+      type: 'dynamic-tool'
+      toolName: string
+      state?: string
+    }>
+    if (toolParts.length === 0) return
+
+    queueMicrotask(() => {
+      setLiveToolStates((current) => {
+        const next = { ...current }
+        let changed = false
+
+        for (const part of toolParts) {
+          if (!part.toolName || part.toolName === 'finalize_response') continue
+
+          const nextState =
+            part.state === 'output-error'
+              ? 'error'
+              : part.state === 'output-available'
+                ? 'completed'
+                : 'executing'
+
+          if (next[part.toolName] !== nextState) {
+            next[part.toolName] = nextState
+            changed = true
+          }
+        }
+
+        return changed ? next : current
+      })
+    })
+  }, [isLoading, messages])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -564,7 +622,7 @@ export function ChatContainer() {
           </div>
         </div>
       ) : (
-        <MessageList messages={messages} isLoading={isLoading} />
+        <MessageList messages={messages} isLoading={isLoading} liveTools={liveTools} />
       )}
 
       <ChatInput input={input} isLoading={isLoading} onChange={setInput} onSubmit={handleSubmit} />
