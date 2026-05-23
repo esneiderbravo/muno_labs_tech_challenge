@@ -45,7 +45,9 @@ describe('detectConflicts', () => {
     ]
     const conflicts = detectConflicts(results)
     expect(conflicts.length).toBeGreaterThan(0)
+    expect(conflicts[0].topic).toContain('implementation approach')
     expect(conflicts[0].mostRecentSource).toBe('get_slack_messages')
+    expect(conflicts[0].entries.some((entry) => /REST|GraphQL|híbrido|hybrido|hybrid/i.test(entry.value))).toBe(true)
   })
 
   it('marks confidence as low when conflict involves 3+ sources', () => {

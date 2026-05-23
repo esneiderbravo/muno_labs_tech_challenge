@@ -1,7 +1,6 @@
 // components/chat/message-list.tsx
 'use client'
 import { useEffect, useRef } from 'react'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { MessageBubble } from './message-bubble'
 import type { UIMessage } from 'ai'
 
@@ -11,10 +10,20 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages, isLoading }: MessageListProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const shouldAutoScrollRef = useRef(true)
+
+  const handleScroll = () => {
+    const container = containerRef.current
+    if (!container) return
+    const distanceToBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+    shouldAutoScrollRef.current = distanceToBottom < 80
+  }
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (!shouldAutoScrollRef.current) return
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [messages, isLoading])
 
   if (messages.length === 0) {
@@ -26,7 +35,7 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
   }
 
   return (
-    <ScrollArea className="flex-1 px-6">
+    <div ref={containerRef} onScroll={handleScroll} className="flex-1 min-h-0 overflow-y-auto px-6">
       <div className="mx-auto max-w-3xl space-y-6 py-6">
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
@@ -45,6 +54,6 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
         )}
         <div ref={bottomRef} />
       </div>
-    </ScrollArea>
+    </div>
   )
 }

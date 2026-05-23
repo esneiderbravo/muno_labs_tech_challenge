@@ -1,0 +1,44 @@
+{
+  "skill_name": "docstring-standardizer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Standardize documentation comments in this Next.js project. Focus on components and shared utilities, and apply a consistent TSDoc/JSDoc format with @param and @returns where appropriate.",
+      "expected_output": "Doc comments are added or normalized across components and utilities, with accurate @param/@returns tags and no behavior changes.",
+      "files": [],
+      "expectations": [
+        "Updates include both components and utility/helper modules",
+        "Added doc comments use block comment format with clear one-line summaries",
+        "Functions with parameters include @param tags when meaningful",
+        "Non-void functions include @returns tags",
+        "Response reports which files and symbols were updated"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Do a pass over app/ and lib/ to clean up inconsistent comments and missing function docs. Keep the existing code behavior unchanged and avoid touching unrelated formatting.",
+      "expected_output": "Inconsistent or missing comments in app/ and lib/ are standardized with targeted edits only.",
+      "files": [],
+      "expectations": [
+        "Targets app and lib source files rather than generated/vendor files",
+        "Removes or rewrites stale/inaccurate comment text",
+        "Does not perform unrelated refactors",
+        "Uses @param and @returns when aligned with function signatures",
+        "Provides a concise per-file summary of docstring changes"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I need production-ready API docs in code comments for exported methods and React components. Standardize the entire repo docs style so future contributors follow one convention.",
+      "expected_output": "Exported methods and React components receive consistent, production-ready TSDoc/JSDoc comments in a single convention.",
+      "files": [],
+      "expectations": [
+        "Prioritizes exported/public APIs before low-value internals",
+        "Component comments describe purpose and key props context",
+        "Comments avoid trivial restatements of code",
+        "Updated comments are internally consistent in style and tag usage",
+        "Final output includes any intentional skips with reasons"
+      ]
+    }
+  ]
+}

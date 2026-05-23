@@ -1,10 +1,11 @@
 // components/sidebar/client-sidebar.tsx
 'use client'
-import { getAllClients } from '@/lib/data'
 import { cn } from '@/lib/utils'
-import type { ClientId } from '@/lib/types'
+import type { Client, ClientId } from '@/lib/types'
 
 interface ClientSidebarProps {
+  clients: Client[]
+  canViewAll: boolean
   selectedClientId: ClientId | 'all'
   onSelectClient: (id: ClientId | 'all') => void
 }
@@ -77,35 +78,42 @@ const STATUS_LEGEND = [
   { dotColor: 'bg-[var(--status-pending)]', label: 'Pendiente' },
 ]
 
-export function ClientSidebar({ selectedClientId, onSelectClient }: ClientSidebarProps) {
-  const clients = getAllClients()
-
+export function ClientSidebar({
+  clients,
+  canViewAll,
+  selectedClientId,
+  onSelectClient,
+}: ClientSidebarProps) {
   return (
-    <div className="border-border bg-sidebar fixed top-0 bottom-0 left-0 z-20 flex w-52 flex-col border-r">
+    <div className="border-sidebar-border/80 bg-sidebar fixed top-0 bottom-0 left-0 z-20 flex w-52 flex-col border-r shadow-[12px_0_40px_oklch(0.02_0.01_65_/_0.22)]">
       {/* Header */}
-      <div className="border-border border-b px-4 py-5">
-        <p className="text-muted-foreground font-mono text-[10px] tracking-[0.2em] uppercase">
+      <div className="border-sidebar-border/70 border-b px-4 py-5">
+        <p className="text-sidebar-foreground/72 font-mono text-[10px] tracking-[0.24em] uppercase">
           Clientes
         </p>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-2">
-        <button
-          onClick={() => onSelectClient('all')}
-          className={cn(
-            'w-full border-l-2 py-2.5 pr-3 pl-4 text-left text-sm transition-colors duration-150',
-            selectedClientId === 'all'
-              ? 'text-foreground border-l-[var(--accent-gold)] bg-[oklch(1_0_0_/_4%)]'
-              : 'text-muted-foreground hover:text-foreground border-l-transparent hover:bg-[oklch(1_0_0_/_2%)]',
-          )}
-        >
-          <span className={cn('font-medium', selectedClientId === 'all' ? '' : '')}>
-            Todos los clientes
-          </span>
-        </button>
+        {canViewAll && (
+          <>
+            <button
+              onClick={() => onSelectClient('all')}
+              className={cn(
+                'w-full border-l-2 py-2.5 pr-3 pl-4 text-left text-sm transition-colors duration-150',
+                selectedClientId === 'all'
+                  ? 'text-sidebar-foreground border-l-[var(--accent-gold)] bg-[oklch(1_0_0_/_7%)]'
+                  : 'text-sidebar-foreground/65 hover:text-sidebar-foreground border-l-transparent hover:bg-[oklch(1_0_0_/_4%)]',
+              )}
+            >
+              <span className={cn('font-medium', selectedClientId === 'all' ? '' : '')}>
+                Todos los clientes
+              </span>
+            </button>
 
-        <div className="border-border mx-4 my-2 border-t" />
+            <div className="border-sidebar-border/65 mx-4 my-2 border-t" />
+          </>
+        )}
 
         {clients.map((client) => {
           const status = STATUS_CONFIG[client.id]
@@ -118,10 +126,10 @@ export function ClientSidebar({ selectedClientId, onSelectClient }: ClientSideba
                 'group w-full border-l-2 py-2.5 pr-3 pl-4 text-left text-sm transition-colors duration-150',
                 isSelected
                   ? cn(
-                      'text-foreground bg-[oklch(1_0_0_/_4%)]',
+                      'text-sidebar-foreground bg-[oklch(1_0_0_/_7%)]',
                       status?.borderColor ?? 'border-l-[var(--accent-gold)]',
                     )
-                  : 'text-muted-foreground hover:text-foreground border-l-transparent hover:bg-[oklch(1_0_0_/_2%)]',
+                  : 'text-sidebar-foreground/65 hover:text-sidebar-foreground border-l-transparent hover:bg-[oklch(1_0_0_/_4%)]',
               )}
             >
               <div className="flex items-center justify-between gap-2">
@@ -138,7 +146,7 @@ export function ClientSidebar({ selectedClientId, onSelectClient }: ClientSideba
                   />
                 )}
               </div>
-              <div className="text-muted-foreground/85 mt-0.5 truncate font-mono text-[10px]">
+              <div className="text-sidebar-foreground/48 mt-0.5 truncate font-mono text-[10px]">
                 {client.industry}
               </div>
             </button>
@@ -147,12 +155,12 @@ export function ClientSidebar({ selectedClientId, onSelectClient }: ClientSideba
       </nav>
 
       {/* Status legend */}
-      <div className="border-border border-t px-4 py-3">
+      <div className="border-sidebar-border/70 border-t px-4 py-3">
         <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
           {STATUS_LEGEND.map(({ dotColor, label }) => (
             <span
               key={label}
-              className="text-muted-foreground/80 flex items-center gap-1.5 font-mono text-[9px] tracking-wider uppercase"
+             className="text-sidebar-foreground/52 flex items-center gap-1.5 font-mono text-[9px] tracking-wider uppercase"
             >
               <span className={cn('h-1.5 w-1.5 shrink-0 rounded-sm', dotColor)} />
               {label}

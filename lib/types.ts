@@ -22,6 +22,12 @@ export interface Client {
   assignedTo: string[] // userIds
 }
 
+export interface UserIdentity {
+  id: string
+  role: UserRole
+  name: string
+}
+
 // --- Tool result shapes ---
 
 export interface LinearTask {
@@ -128,6 +134,8 @@ export interface ProposedAction {
 }
 
 export interface FinalizeResponseArgs {
+  summary: string
+  next_steps: string[]
   confidence: 'high' | 'medium' | 'low'
   confidence_reason: string
   risks: Risk[]
@@ -145,8 +153,16 @@ export interface ToolResult {
   fetchedAt: string
 }
 
+export interface ChatThreadSummary {
+  id: string
+  title: string
+  createdAt: string
+  updatedAt: string
+}
+
 export interface ChatRequestBody {
   messages: UIMessage[]
   userId: string
   clientId: ClientId | 'all'
+  chatId?: string
 }

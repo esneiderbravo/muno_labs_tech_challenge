@@ -14,21 +14,40 @@ interface WriteBackCardProps {
 }
 
 export function WriteBackCard({ action }: WriteBackCardProps) {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'done'>('idle')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [resultMessage, setResultMessage] = useState('')
+  const [dismissed, setDismissed] = useState(false)
   const info = TYPE_LABELS[action.type]
 
   const handleApprove = async () => {
     setStatus('loading')
-    const res = await fetch('/api/actions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action }),
-    })
-    const data = (await res.json()) as { message: string }
-    setResultMessage(data.message)
-    setStatus('done')
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000)
+
+    try {
+      const res = await fetch('/api/actions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+        signal: controller.signal,
+      })
+
+      if (!res.ok) {
+        throw new Error('No se pudo ejecutar la acción.')
+      }
+
+      const data = (await res.json()) as { message: string }
+      setResultMessage(data.message)
+      setStatus('done')
+    } catch {
+      setResultMessage('No se pudo ejecutar la acción. Intenta nuevamente.')
+      setStatus('error')
+    } finally {
+      clearTimeout(timeoutId)
+    }
   }
+
+  if (dismissed) return null
 
   return (
     <div className="mt-1 border border-[var(--status-pending)]/22 bg-[var(--status-pending)]/[0.04]">
@@ -48,6 +67,11 @@ export function WriteBackCard({ action }: WriteBackCardProps) {
             ✓ {resultMessage}
           </p>
         )}
+        {status === 'error' && (
+          <p className="mt-2 font-mono text-[9px] tracking-[0.15em] text-[var(--status-risk)] uppercase">
+            ⚠ {resultMessage}
+          </p>
+        )}
       </div>
 
       {/* Actions */}
@@ -63,9 +87,14 @@ export function WriteBackCard({ action }: WriteBackCardProps) {
               'disabled:cursor-not-allowed disabled:opacity-40',
             )}
           >
-            {status === 'loading' ? 'Ejecutando...' : 'Aprobar'}
+            {status === 'loading' ? 'Ejecutando...' : status === 'error' ? 'Reintentar' : 'Aprobar'}
           </button>
-          <button className="text-muted-foreground/50 hover:text-muted-foreground px-3 py-1.5 font-mono text-[9px] tracking-[0.2em] uppercase transition-colors duration-150">
+          <button
+            type="button"
+            onClick={() => setDismissed(true)}
+            disabled={status === 'loading'}
+            className="text-muted-foreground/50 hover:text-muted-foreground px-3 py-1.5 font-mono text-[9px] tracking-[0.2em] uppercase transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40"
+          >
             Descartar
           </button>
         </div>
