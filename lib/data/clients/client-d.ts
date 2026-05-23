@@ -16,7 +16,7 @@ import type {
 export const client: Client = {
   id: 'paylane',
   name: 'Paylane',
-  industry: 'Fintech',
+  industry: 'Fintech de pagos B2B con foco en APIs y compliance',
   assignedTo: ['account-lead-2', 'founder-1'],
 }
 

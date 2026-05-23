@@ -9,9 +9,11 @@ interface ClientSidebarProps {
   onSelectClient: (id: ClientId | 'all') => void
 }
 
-const STATUS_CONFIG: Record<
+const STATUS_CONFIG: Partial<
+  Record<
   ClientId,
   { borderColor: string; dotColor: string; label: string; pulse?: boolean }
+  >
 > = {
   vivamart: {
     borderColor: 'border-l-[var(--status-risk)]',
@@ -30,6 +32,38 @@ const STATUS_CONFIG: Record<
     label: 'Conflicto',
   },
   paylane: {
+    borderColor: 'border-l-[var(--status-pending)]',
+    dotColor: 'bg-[var(--status-pending)]',
+    label: 'Pendiente',
+  },
+  bloom: {
+    borderColor: 'border-l-[var(--status-risk)]',
+    dotColor: 'bg-[var(--status-risk)]',
+    label: 'En riesgo',
+    pulse: true,
+  },
+  draftly: {
+    borderColor: 'border-l-[var(--status-healthy)]',
+    dotColor: 'bg-[var(--status-healthy)]',
+    label: 'Saludable',
+  },
+  metrify: {
+    borderColor: 'border-l-[var(--status-pending)]',
+    dotColor: 'bg-[var(--status-pending)]',
+    label: 'Pendiente',
+  },
+  nexova: {
+    borderColor: 'border-l-[var(--status-risk)]',
+    dotColor: 'bg-[var(--status-risk)]',
+    label: 'En riesgo',
+    pulse: true,
+  },
+  solara: {
+    borderColor: 'border-l-[var(--status-healthy)]',
+    dotColor: 'bg-[var(--status-healthy)]',
+    label: 'Saludable',
+  },
+  trackflow: {
     borderColor: 'border-l-[var(--status-pending)]',
     dotColor: 'bg-[var(--status-pending)]',
     label: 'Pendiente',
@@ -74,12 +108,12 @@ export function ClientSidebar({ selectedClientId, onSelectClient }: ClientSideba
         <div className="border-border mx-4 my-2 border-t" />
 
         {clients.map((client) => {
-          const status = STATUS_CONFIG[client.id as ClientId]
+          const status = STATUS_CONFIG[client.id]
           const isSelected = selectedClientId === client.id
           return (
             <button
               key={client.id}
-              onClick={() => onSelectClient(client.id as ClientId)}
+              onClick={() => onSelectClient(client.id)}
               className={cn(
                 'group w-full border-l-2 py-2.5 pr-3 pl-4 text-left text-sm transition-colors duration-150',
                 isSelected
@@ -104,7 +138,7 @@ export function ClientSidebar({ selectedClientId, onSelectClient }: ClientSideba
                   />
                 )}
               </div>
-              <div className="text-muted-foreground/60 mt-0.5 truncate font-mono text-[10px]">
+              <div className="text-muted-foreground/85 mt-0.5 truncate font-mono text-[10px]">
                 {client.industry}
               </div>
             </button>
@@ -118,7 +152,7 @@ export function ClientSidebar({ selectedClientId, onSelectClient }: ClientSideba
           {STATUS_LEGEND.map(({ dotColor, label }) => (
             <span
               key={label}
-              className="text-muted-foreground/50 flex items-center gap-1.5 font-mono text-[9px] tracking-wider uppercase"
+              className="text-muted-foreground/80 flex items-center gap-1.5 font-mono text-[9px] tracking-wider uppercase"
             >
               <span className={cn('h-1.5 w-1.5 shrink-0 rounded-sm', dotColor)} />
               {label}

@@ -4,12 +4,24 @@ import * as clientA from './clients/client-a'
 import * as clientB from './clients/client-b'
 import * as clientC from './clients/client-c'
 import * as clientD from './clients/client-d'
+import * as bloom from './clients/bloom'
+import * as draftly from './clients/draftly'
+import * as metrify from './clients/metrify'
+import * as nexova from './clients/nexova'
+import * as solara from './clients/solara'
+import * as trackflow from './clients/trackflow'
 
 const registry = {
   vivamart: clientA,
   clarix: clientB,
   cornerstone: clientC,
   paylane: clientD,
+  bloom,
+  draftly,
+  metrify,
+  nexova,
+  solara,
+  trackflow,
 } as const
 
 export function getClient(id: ClientId) {

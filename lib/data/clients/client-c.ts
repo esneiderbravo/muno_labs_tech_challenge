@@ -16,7 +16,7 @@ import type {
 export const client: Client = {
   id: 'cornerstone',
   name: 'Cornerstone',
-  industry: 'Retail',
+  industry: 'Retail enterprise con foco en catálogo, inventario y operaciones',
   assignedTo: ['account-lead-1', 'founder-1'],
 }
 

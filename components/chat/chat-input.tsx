@@ -26,7 +26,7 @@ export function ChatInput({ input, isLoading, onChange, onSubmit }: ChatInputPro
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Pregunta sobre un cliente, estado de proyectos, riesgos o solicita un informe..."
-            className="placeholder:text-muted-foreground/35 max-h-[180px] min-h-[40px] resize-none rounded-none border-0 bg-transparent px-4 py-2.5 text-sm shadow-none focus-visible:ring-0"
+            className="placeholder:text-muted-foreground/70 max-h-[180px] min-h-[40px] resize-none rounded-none border-0 bg-transparent px-4 py-2.5 text-sm shadow-none focus-visible:ring-0"
             rows={1}
             disabled={isLoading}
           />
@@ -47,7 +47,7 @@ export function ChatInput({ input, isLoading, onChange, onSubmit }: ChatInputPro
             )}
           </button>
         </div>
-        <p className="text-muted-foreground/30 mt-2 text-center font-mono text-[9px] tracking-[0.2em] uppercase">
+        <p className="text-muted-foreground/70 mt-2 text-center font-mono text-[9px] tracking-[0.2em] uppercase">
           Enter para enviar · Shift+Enter para nueva línea
         </p>
       </div>

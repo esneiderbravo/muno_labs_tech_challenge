@@ -16,7 +16,7 @@ import type {
 export const client: Client = {
   id: 'clarix',
   name: 'Clarix',
-  industry: 'SaaS',
+  industry: 'SaaS B2B de productividad y automatización de onboarding',
   assignedTo: ['account-lead-2', 'founder-1'],
 }
 

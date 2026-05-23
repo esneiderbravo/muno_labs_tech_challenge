@@ -1,6 +1,18 @@
 // lib/types.ts
+import type { UIMessage } from 'ai'
 
-export type ClientId = 'vivamart' | 'clarix' | 'cornerstone' | 'paylane'
+export type { UIMessage }
+export type ClientId =
+  | 'vivamart'
+  | 'clarix'
+  | 'cornerstone'
+  | 'paylane'
+  | 'bloom'
+  | 'draftly'
+  | 'metrify'
+  | 'nexova'
+  | 'solara'
+  | 'trackflow'
 export type UserRole = 'founder' | 'account_lead'
 
 export interface Client {
@@ -134,7 +146,7 @@ export interface ToolResult {
 }
 
 export interface ChatRequestBody {
-  messages: Array<{ role: string; content: string }>
+  messages: UIMessage[]
   userId: string
   clientId: ClientId | 'all'
 }

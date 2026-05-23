@@ -19,7 +19,7 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
 
   if (messages.length === 0) {
     return (
-      <div className="text-muted-foreground/30 flex flex-1 items-center justify-center font-mono text-[10px] tracking-[0.2em] uppercase">
+      <div className="text-muted-foreground/70 flex flex-1 items-center justify-center font-mono text-[10px] tracking-[0.2em] uppercase">
         Pregunta cualquier cosa sobre tus clientes
       </div>
     )
@@ -37,7 +37,7 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
               <span className="h-1 w-1 animate-bounce rounded-full bg-[var(--accent-gold)] opacity-60 [animation-delay:0ms]" />
               <span className="h-1 w-1 animate-bounce rounded-full bg-[var(--accent-gold)] opacity-60 [animation-delay:130ms]" />
               <span className="h-1 w-1 animate-bounce rounded-full bg-[var(--accent-gold)] opacity-60 [animation-delay:260ms]" />
-              <span className="text-muted-foreground/35 ml-1 font-mono text-[9px] tracking-[0.2em] uppercase">
+              <span className="text-muted-foreground/70 ml-1 font-mono text-[9px] tracking-[0.2em] uppercase">
                 Analizando
               </span>
             </div>

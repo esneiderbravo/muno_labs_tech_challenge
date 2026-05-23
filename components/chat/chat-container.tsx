@@ -54,7 +54,7 @@ export function ChatContainer() {
                 fontWeight: 500,
               }}
             >
-              Agente de Crecimiento
+              Growth Agent
             </h1>
             <p className="text-muted-foreground mt-1.5 font-mono text-[10px] tracking-[0.18em] uppercase">
               PM Virtual · {DEMO_USER.name}
@@ -77,7 +77,7 @@ export function ChatContainer() {
         <div className="flex flex-1 flex-col items-center justify-center gap-10 px-8">
           <div className="space-y-3 text-center">
             <p
-              className="text-foreground/20 text-[2rem] leading-none"
+              className="text-foreground/70 text-[2rem] leading-none"
               style={{
                 fontFamily: 'var(--font-cormorant), "Cormorant Garamond", Georgia, serif',
                 fontStyle: 'italic',
@@ -86,7 +86,7 @@ export function ChatContainer() {
             >
               ¿Qué quieres saber?
             </p>
-            <p className="text-muted-foreground/40 font-mono text-[10px] tracking-[0.2em] uppercase">
+            <p className="text-muted-foreground/80 font-mono text-[10px] tracking-[0.2em] uppercase">
               Consulta clientes · Obtén informes · Detecta riesgos
             </p>
           </div>
@@ -96,9 +96,9 @@ export function ChatContainer() {
               <button
                 key={q}
                 onClick={() => handleSuggestedQuery(q)}
-                className="border-border text-muted-foreground hover:text-foreground group flex w-full items-center gap-4 border px-4 py-2.5 text-left text-sm transition-all duration-150 hover:border-[var(--accent-gold)]/35 hover:bg-[oklch(1_0_0_/_2%)]"
+                className="border-border text-foreground/85 hover:text-foreground group flex w-full items-center gap-4 border px-4 py-2.5 text-left text-sm transition-all duration-150 hover:border-[var(--accent-gold)]/35 hover:bg-[oklch(1_0_0_/_2%)]"
               >
-                <span className="text-muted-foreground/30 w-5 shrink-0 font-mono text-[10px] tabular-nums group-hover:text-[var(--accent-gold)]/50">
+                <span className="text-muted-foreground/70 w-5 shrink-0 font-mono text-[10px] tabular-nums group-hover:text-[var(--accent-gold)]/70">
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <span className="leading-snug">{q}</span>

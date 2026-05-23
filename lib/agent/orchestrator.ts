@@ -1,5 +1,5 @@
 // lib/agent/orchestrator.ts
-import { streamText, tool, stepCountIs } from 'ai'
+import { streamText, tool, stepCountIs, type ModelMessage } from 'ai'
 import { createGroq } from '@ai-sdk/groq'
 import { z } from 'zod'
 import { buildSystemPrompt } from './system-prompt'
@@ -17,13 +17,33 @@ import { getWhatsappMessages } from '@/lib/tools/whatsapp'
 import type { ClientId, ToolResult } from '@/lib/types'
 
 const clientIdSchema = z.object({
-  clientId: z.enum(['vivamart', 'clarix', 'cornerstone', 'paylane']),
+  clientId: z.enum([
+    'vivamart',
+    'clarix',
+    'cornerstone',
+    'paylane',
+    'bloom',
+    'draftly',
+    'metrify',
+    'nexova',
+    'solara',
+    'trackflow',
+  ]),
 })
 
-export function createAgentStream(
-  messages: Array<{ role: 'user' | 'assistant'; content: string }>,
-  _clientId: ClientId | 'all',
-) {
+const parseArray = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess((val) => {
+    if (typeof val === 'string') {
+      try {
+        return JSON.parse(val)
+      } catch {
+        return val
+      }
+    }
+    return val
+  }, z.array(schema))
+
+export function createAgentStream(messages: ModelMessage[], _clientId: ClientId | 'all') {
   const preDetectedConflicts: ToolResult[] = []
   const conflicts = detectConflicts(preDetectedConflicts)
   const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
@@ -102,20 +122,17 @@ export function createAgentStream(
             .enum(['high', 'medium', 'low'])
             .describe('Overall confidence in this response'),
           confidence_reason: z.string().describe('Brief explanation of why this confidence level'),
-          risks: z
-            .array(
+          risks: parseArray(
               z.object({
                 description: z.string(),
                 source: z.string(),
                 severity: z.enum(['high', 'medium', 'low']),
               }),
-            )
-            .describe('Detected risks with evidence'),
-          conflicts: z
-            .array(
+            ).describe('Detected risks with evidence'),
+          conflicts: parseArray(
               z.object({
                 topic: z.string(),
-                entries: z.array(
+                entries: parseArray(
                   z.object({ source: z.string(), date: z.string(), value: z.string() }),
                 ),
                 mostRecentSource: z.string(),
@@ -123,21 +140,18 @@ export function createAgentStream(
                 confidence: z.enum(['high', 'medium', 'low']),
                 recommendation: z.string(),
               }),
-            )
-            .describe('Conflicts detected between data sources'),
-          proposed_actions: z
-            .array(
+            ).describe('Conflicts detected between data sources'),
+          proposed_actions: parseArray(
               z.object({
                 type: z.enum(['linear_task', 'slack_draft', 'notion_update']),
                 description: z.string(),
                 previewText: z.string(),
                 data: z.record(z.string(), z.unknown()),
               }),
-            )
-            .describe('Proposed write-back actions requiring user approval'),
-          sources_consulted: z
-            .array(z.string())
-            .describe('List of tool names called during this response'),
+            ).describe('Proposed write-back actions requiring user approval'),
+          sources_consulted: parseArray(z.string()).describe(
+            'List of tool names called during this response',
+          ),
         }),
         execute: async (args) => args,
       }),

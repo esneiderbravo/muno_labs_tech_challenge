@@ -5,7 +5,7 @@ import { getClientsByUser } from '@/lib/data/index'
 describe('getClientsByUser', () => {
   it('returns all clients for founder role', () => {
     const result = getClientsByUser('founder-1', 'founder')
-    expect(result).toHaveLength(4)
+    expect(result).toHaveLength(10)
   })
 
   it('returns only assigned clients for account_lead', () => {

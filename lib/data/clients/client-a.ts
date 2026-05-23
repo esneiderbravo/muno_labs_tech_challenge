@@ -16,7 +16,7 @@ import type {
 export const client: Client = {
   id: 'vivamart',
   name: 'Vivamart',
-  industry: 'E-commerce',
+  industry: 'E-commerce omnicanal para retail de consumo masivo',
   assignedTo: ['account-lead-1', 'founder-1'],
 }
 
