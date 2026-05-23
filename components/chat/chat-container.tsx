@@ -16,6 +16,163 @@ const SUGGESTED_QUERIES = [
   '¿Qué le prometimos a Paylane el mes pasado y qué hemos entregado?',
 ]
 
+const DEFAULT_CHAT_TITLE = 'Nueva conversación'
+
+type ClientScope = ClientId | 'all'
+
+function getStorage(): Storage | null {
+  if (typeof window === 'undefined') return null
+  return window.localStorage
+}
+
+function getIndexKey(userId: string, clientId: ClientScope): string {
+  return `growth-agent:chat-index:${userId}:${clientId}`
+}
+
+function getMessagesKey(userId: string, clientId: ClientScope, chatId: string): string {
+  return `growth-agent:chat-messages:${userId}:${clientId}:${chatId}`
+}
+
+function readJson<T>(key: string, fallback: T): T {
+  const storage = getStorage()
+  if (!storage) return fallback
+  const raw = storage.getItem(key)
+  if (!raw) return fallback
+
+  try {
+    const parsed = JSON.parse(raw) as T
+    return parsed
+  } catch {
+    return fallback
+  }
+}
+
+function writeJson(key: string, value: unknown) {
+  const storage = getStorage()
+  if (!storage) return
+  storage.setItem(key, JSON.stringify(value))
+}
+
+function createChatId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
+function getFirstUserText(messages: UIMessage[]): string | null {
+  const firstUserMessage = messages.find((message) => message.role === 'user')
+  if (!firstUserMessage) return null
+
+  for (const part of firstUserMessage.parts ?? []) {
+    if (part.type === 'text' && typeof part.text === 'string' && part.text.trim().length > 0) {
+      return part.text.trim().slice(0, 80)
+    }
+  }
+
+  return null
+}
+
+function listLocalChats(userId: string, clientId: ClientScope): ChatThreadSummary[] {
+  const chats = readJson<ChatThreadSummary[]>(getIndexKey(userId, clientId), [])
+  return [...chats].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+}
+
+function createLocalChat(
+  userId: string,
+  clientId: ClientScope,
+  title?: string,
+): { chat: ChatThreadSummary; chats: ChatThreadSummary[] } {
+  const chats = listLocalChats(userId, clientId)
+  const now = new Date().toISOString()
+  const chat: ChatThreadSummary = {
+    id: createChatId(),
+    title: title?.trim() || DEFAULT_CHAT_TITLE,
+    createdAt: now,
+    updatedAt: now,
+  }
+
+  writeJson(getMessagesKey(userId, clientId, chat.id), [])
+  writeJson(getIndexKey(userId, clientId), [chat, ...chats])
+
+  return { chat, chats: [chat, ...chats] }
+}
+
+function loadLocalChatHistory(
+  userId: string,
+  clientId: ClientScope,
+  preferredChatId?: string,
+): { chatId: string; chats: ChatThreadSummary[]; messages: UIMessage[] } {
+  const chats = listLocalChats(userId, clientId)
+
+  if (chats.length === 0) {
+    const created = createLocalChat(userId, clientId)
+    return { chatId: created.chat.id, chats: created.chats, messages: [] }
+  }
+
+  const selectedChat = preferredChatId
+    ? chats.find((chat) => chat.id === preferredChatId) ?? chats[0]
+    : chats[0]
+
+  const messages = readJson<UIMessage[]>(getMessagesKey(userId, clientId, selectedChat.id), [])
+  return { chatId: selectedChat.id, chats, messages }
+}
+
+function saveLocalChatHistory(
+  userId: string,
+  clientId: ClientScope,
+  chatId: string,
+  messages: UIMessage[],
+): ChatThreadSummary[] {
+  const chats = listLocalChats(userId, clientId)
+  const now = new Date().toISOString()
+  const inferredTitle = getFirstUserText(messages)
+  const existing = chats.find((chat) => chat.id === chatId)
+
+  const updatedChat: ChatThreadSummary = existing
+    ? {
+        ...existing,
+        updatedAt: now,
+        title:
+          existing.title === DEFAULT_CHAT_TITLE && inferredTitle ? inferredTitle : existing.title,
+      }
+    : {
+        id: chatId,
+        title: inferredTitle ?? DEFAULT_CHAT_TITLE,
+        createdAt: now,
+        updatedAt: now,
+      }
+
+  const remaining = chats.filter((chat) => chat.id !== chatId)
+  const nextChats = [updatedChat, ...remaining].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+
+  writeJson(getMessagesKey(userId, clientId, chatId), messages)
+  writeJson(getIndexKey(userId, clientId), nextChats)
+
+  return nextChats
+}
+
+function deleteLocalChat(
+  userId: string,
+  clientId: ClientScope,
+  chatId: string,
+): { chats: ChatThreadSummary[]; activeChatId: string } {
+  const storage = getStorage()
+  const chats = listLocalChats(userId, clientId)
+  const remaining = chats.filter((chat) => chat.id !== chatId)
+
+  storage?.removeItem(getMessagesKey(userId, clientId, chatId))
+
+  if (remaining.length === 0) {
+    const created = createLocalChat(userId, clientId)
+    return { chats: created.chats, activeChatId: created.chat.id }
+  }
+
+  const sorted = [...remaining].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  writeJson(getIndexKey(userId, clientId), sorted)
+  return { chats: sorted, activeChatId: sorted[0].id }
+}
+
 export function ChatContainer() {
   const [selectedUserId, setSelectedUserId] = useState(DEMO_USER.id)
   const selectedUser = getUserById(selectedUserId) ?? DEMO_USER
@@ -36,7 +193,6 @@ export function ChatContainer() {
   )
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
   const [chats, setChats] = useState<ChatThreadSummary[]>([])
-  const [shouldCreateChatOnUserChange, setShouldCreateChatOnUserChange] = useState(false)
   const [openMenu, setOpenMenu] = useState<'user' | 'chat' | null>(null)
   const [input, setInput] = useState('')
   const lastLoadedHistoryKeyRef = useRef<string | null>(null)
@@ -48,19 +204,15 @@ export function ChatContainer() {
     parts: [{ type: 'text', text }],
   })
 
-  const persistHistory = async (nextMessages: UIMessage[]) => {
+  const persistHistory = (nextMessages: UIMessage[]) => {
     if (!selectedChatId) return
-
-    await fetch('/api/chat/history', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: selectedUser.id,
-        clientId: effectiveSelectedClientId,
-        chatId: selectedChatId,
-        messages: nextMessages,
-      }),
-    })
+    const nextChats = saveLocalChatHistory(
+      selectedUser.id,
+      effectiveSelectedClientId,
+      selectedChatId,
+      nextMessages,
+    )
+    setChats(nextChats)
   }
 
   const effectiveSelectedClientId =
@@ -79,7 +231,7 @@ export function ChatContainer() {
       body: { userId: selectedUser.id, clientId: effectiveSelectedClientId },
     }),
     onFinish: ({ messages: nextMessages }) => {
-      void persistHistory(nextMessages)
+      persistHistory(nextMessages)
     },
     onError: () => {
       setMessages((current) => [
@@ -125,7 +277,7 @@ export function ChatContainer() {
             `No hay información disponible sobre el cliente "${unauthorizedMention.name}".`,
           ),
         ]
-        void persistHistory(nextMessages)
+        persistHistory(nextMessages)
         return nextMessages
       })
       return
@@ -147,7 +299,6 @@ export function ChatContainer() {
     setInput('')
     setChats([])
     setSelectedChatId(null)
-    setShouldCreateChatOnUserChange(true)
     setOpenMenu(null)
     lastLoadedHistoryKeyRef.current = null
     setSelectedClientId('all')
@@ -175,73 +326,28 @@ export function ChatContainer() {
     setOpenMenu(null)
   }
 
-  const handleNewChat = async () => {
+  const handleNewChat = () => {
     stop()
     clearError()
     setMessages([])
     setInput('')
     setOpenMenu(null)
-
-    try {
-      const response = await fetch('/api/chat/history', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: selectedUser.id,
-          clientId: effectiveSelectedClientId,
-        }),
-      })
-
-      if (!response.ok) return
-
-      const payload = (await response.json()) as {
-        chat?: ChatThreadSummary
-        chats?: ChatThreadSummary[]
-      }
-
-      if (Array.isArray(payload.chats)) setChats(payload.chats)
-      if (payload.chat?.id) setSelectedChatId(payload.chat.id)
-    } catch {
-      setMessages((current) => [
-        ...current,
-        createAssistantTextMessage('No se pudo crear un nuevo chat.'),
-      ])
-    }
+    const created = createLocalChat(selectedUser.id, effectiveSelectedClientId)
+    setChats(created.chats)
+    setSelectedChatId(created.chat.id)
   }
 
-  const handleDeleteChat = async (chatIdToDelete: string) => {
+  const handleDeleteChat = (chatIdToDelete: string) => {
     if (!chatIdToDelete) return
 
     stop()
     clearError()
     setInput('')
 
-    try {
-      const response = await fetch('/api/chat/history', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: selectedUser.id,
-          clientId: effectiveSelectedClientId,
-          chatId: chatIdToDelete,
-        }),
-      })
-
-      if (!response.ok) return
-
-      const payload = (await response.json()) as {
-        chats?: ChatThreadSummary[]
-        activeChatId?: string
-      }
-
-      if (Array.isArray(payload.chats)) setChats(payload.chats)
-      if (payload.activeChatId) {
-        setMessages([])
-        setSelectedChatId(payload.activeChatId)
-      }
-    } catch {
-      setMessages((current) => [...current, createAssistantTextMessage('No se pudo borrar el chat.')])
-    }
+    const payload = deleteLocalChat(selectedUser.id, effectiveSelectedClientId, chatIdToDelete)
+    setChats(payload.chats)
+    setMessages([])
+    setSelectedChatId(payload.activeChatId)
   }
 
   useEffect(() => {
@@ -252,77 +358,23 @@ export function ChatContainer() {
     if (lastLoadedHistoryKeyRef.current === historyKey) return
     lastLoadedHistoryKeyRef.current = historyKey
 
-    const loadHistory = async () => {
-      try {
-        if (shouldCreateChatOnUserChange && !selectedChatId) {
-          const createResponse = await fetch('/api/chat/history', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              userId: selectedUser.id,
-              clientId: effectiveSelectedClientId,
-            }),
-          })
+    const payload = loadLocalChatHistory(
+      selectedUser.id,
+      effectiveSelectedClientId,
+      selectedChatId ?? undefined,
+    )
 
-          if (!createResponse.ok) {
-            if (!cancelled) setMessages([])
-            return
-          }
+    queueMicrotask(() => {
+      if (cancelled) return
 
-          const createdPayload = (await createResponse.json()) as {
-            chat?: ChatThreadSummary
-            chats?: ChatThreadSummary[]
-          }
+      if (Array.isArray(payload.chats)) setChats(payload.chats)
+      setMessages(Array.isArray(payload.messages) ? payload.messages : [])
 
-          if (cancelled) return
-
-          if (Array.isArray(createdPayload.chats)) setChats(createdPayload.chats)
-          setMessages([])
-          setShouldCreateChatOnUserChange(false)
-
-          if (createdPayload.chat?.id) {
-            lastLoadedHistoryKeyRef.current = `${selectedUser.id}::${effectiveSelectedClientId}::${createdPayload.chat.id}`
-            setSelectedChatId(createdPayload.chat.id)
-          }
-          return
-        }
-
-        const response = await fetch(
-          `/api/chat/history?userId=${encodeURIComponent(selectedUser.id)}&clientId=${encodeURIComponent(effectiveSelectedClientId)}${
-            selectedChatId ? `&chatId=${encodeURIComponent(selectedChatId)}` : ''
-          }`,
-        )
-
-        if (!response.ok) {
-          if (!cancelled) setMessages([])
-          return
-        }
-
-        const payload = (await response.json()) as {
-          chatId?: string
-          chats?: ChatThreadSummary[]
-          messages?: UIMessage[]
-        }
-
-        if (cancelled) return
-
-        if (Array.isArray(payload.chats)) setChats(payload.chats)
-        setMessages(Array.isArray(payload.messages) ? payload.messages : [])
-        setShouldCreateChatOnUserChange(false)
-
-        if (payload.chatId && payload.chatId !== selectedChatId) {
-          lastLoadedHistoryKeyRef.current = `${selectedUser.id}::${effectiveSelectedClientId}::${payload.chatId}`
-          setSelectedChatId(payload.chatId)
-        }
-      } catch {
-        if (!cancelled) {
-          setMessages([])
-          setShouldCreateChatOnUserChange(false)
-        }
+      if (payload.chatId && payload.chatId !== selectedChatId) {
+        lastLoadedHistoryKeyRef.current = `${selectedUser.id}::${effectiveSelectedClientId}::${payload.chatId}`
+        setSelectedChatId(payload.chatId)
       }
-    }
-
-    void loadHistory()
+    })
 
     return () => {
       cancelled = true
@@ -332,7 +384,6 @@ export function ChatContainer() {
     selectedChatId,
     selectedUser.id,
     setMessages,
-    shouldCreateChatOnUserChange,
   ])
 
   useEffect(() => {
