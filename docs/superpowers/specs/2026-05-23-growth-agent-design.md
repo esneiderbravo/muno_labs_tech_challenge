@@ -7,31 +7,31 @@
 
 ## 1. WAYRTTD — What Are We Really Trying To Do
 
-**No es:** Responder preguntas sobre proyectos.
+**Not:** Answer questions about projects.
 
-**Es:** Convertir conocimiento fragmentado de múltiples herramientas en memoria organizacional accionable. Eliminar que el estado de los proyectos viva en la cabeza de personas.
+**It is:** Convert fragmented knowledge from multiple tools into actionable organizational memory. Eliminate project state living only in people's heads.
 
-El agente es un **PM virtual con memoria + contexto + criterio** — no un chatbot RAG.
-
----
-
-## 2. Problema Real
-
-Una agencia con 10+ clientes B2B activos tiene su información de estado dispersa en 10 herramientas distintas. Pedir un update claro de todos los proyectos le toma medio día a un founder. El agente resuelve esto siendo la única interfaz que orquesta todas las fuentes con criterio.
+The agent is a **virtual PM with memory + context + judgment** — not a RAG chatbot.
 
 ---
 
-## 3. Arquitectura General
+## 2. The Real Problem
+
+An agency with 10+ active B2B clients has its project state scattered across 10 different tools. Getting a clear update on all projects takes a founder half a day. The agent solves this by being the single interface that orchestrates all sources with judgment.
+
+---
+
+## 3. General Architecture
 
 ```
 Browser (Next.js App Router)
     └─ Chat UI
-         – Streaming de respuestas
-         – Source badges por herramienta consultada
-         – Confidence indicator (Alto/Medio/Bajo)
-         – Conflict alert cuando hay discrepancia entre fuentes
-         – Write-back card: "El agente propone X → [Aprobar]"
-         – Sidebar con lista de clientes
+         – Streaming responses
+         – Source badges per tool consulted
+         – Confidence indicator (High/Medium/Low)
+         – Conflict alert when sources disagree
+         – Write-back card: "Agent proposes X → [Approve]"
+         – Client sidebar
          │
          ▼
     /api/chat  (Next.js Route Handler)
@@ -40,251 +40,251 @@ Browser (Next.js App Router)
     Orchestrator Agent
          – Vercel AI SDK streamText + tool calling
          – Claude claude-sonnet-4-6
-         – Loop de tool calls hasta tener contexto suficiente
-         – detectConflicts() antes de pasar al LLM
-         – Output siempre estructurado
+         – Tool call loop until sufficient context gathered
+         – detectConflicts() before passing to LLM
+         – Always structured output
          │
     ┌────┴──────────────────────────────────┐
     │           Tool Registry (10 tools)    │
     └───────────────────────────────────────┘
          │
-    Memory Layer (in-memory por sesión)
-         – Cachea tool results para evitar re-fetching
-         – Registra qué tools se llamaron y cuándo
+    Memory Layer (in-memory per session)
+         – Caches tool results to avoid re-fetching
+         – Records which tools were called and when
          │
          ▼
     Mock Data Layer
-         – TypeScript modules con interfaz idéntica a las APIs reales
-         – 4 clientes ficticios con escenarios diseñados para el demo
-         – Swap a real: solo cambia el cuerpo de cada función
+         – TypeScript modules with interface identical to real APIs
+         – 4 fictional clients with scenarios designed for the demo
+         – Swap to real: only change each function body, not the architecture
 ```
 
 ---
 
-## 4. Tool Registry — Las 10 Herramientas
+## 4. Tool Registry — All 10 Tools
 
-El agente decide qué herramientas llamar según el tipo de pregunta. No llama todas siempre.
+The agent decides which tools to call based on the question type. It does not call all tools every time.
 
-| Tool | Datos mock | Modo | Frescura simulada |
-|------|-----------|------|-------------------|
-| `get_notion_docs(client)` | Wikis, propuestas, minutas limpias | Read | Días-semanas |
-| `get_linear_tasks(client)` | Tasks, bugs, milestones, ciclos | Read + Write | Horas-días |
-| `get_slack_messages(client, channel?)` | Hilos por cliente, decisiones rápidas | Read + Write (draft) | Minutos |
-| `get_meeting_transcripts(client)` | Transcripts + resúmenes Granola/Circleback | Read | Minutos post-meeting |
-| `get_calendar_events(client)` | Reuniones pasadas/futuras, asistentes | Read | Variable |
-| `get_drive_files(client)` | Decks, propuestas, assets, exports | Read | Semanas |
-| `get_github_activity(client)` | PRs, issues, commits recientes | Read | Horas |
-| `get_obsidian_notes(founder?)` | Notas privadas del founder | Read | Días |
-| `get_posthog_metrics(client)` | Métricas de producto en tiempo real | Read | Real-time |
-| `get_whatsapp_messages(client)` | Mensajes recientes del canal cliente | Read | Minutos |
+| Tool | Mock data | Mode | Simulated freshness |
+|------|-----------|------|---------------------|
+| `get_notion_docs(client)` | Wikis, proposals, clean meeting notes | Read | Days–weeks |
+| `get_linear_tasks(client)` | Tasks, bugs, milestones, cycles | Read + Write | Hours–days |
+| `get_slack_messages(client, channel?)` | Client threads, quick decisions | Read + Write (draft) | Minutes |
+| `get_meeting_transcripts(client)` | Transcripts + Granola/Circleback summaries | Read | Minutes post-meeting |
+| `get_calendar_events(client)` | Past/future meetings, attendees | Read | Variable |
+| `get_drive_files(client)` | Decks, proposals, assets, exports | Read | Weeks |
+| `get_github_activity(client)` | PRs, issues, recent commits | Read | Hours |
+| `get_obsidian_notes(founder?)` | Founder private notes | Read | Days |
+| `get_posthog_metrics(client)` | Real-time product metrics | Read | Real-time |
+| `get_whatsapp_messages(client)` | Recent client channel messages | Read | Minutes |
 
-### Selección inteligente por tipo de query
+### Intelligent selection by query type
 
 ```
-"¿Cómo va Cliente A?"
+"How is Client A doing this week?"
 → transcripts + linear + slack
-→ NO: drive, obsidian, posthog
+→ NOT: drive, obsidian, posthog
 
-"¿Qué métricas tiene Cliente B?"
+"What are Client B's metrics?"
 → posthog + linear + transcripts
-→ NO: drive, github, calendar
+→ NOT: drive, github, calendar
 
-"Brief para reunión de mañana con Cliente C"
+"Prepare a brief for my meeting with Client C tomorrow"
 → calendar + transcripts + linear + slack + notion
-→ NO: posthog, obsidian (salvo que el founder lo pida)
+→ NOT: posthog, obsidian (unless founder requests it)
 
-"¿Hay algo urgente en el repo de Cliente D?"
+"Is there anything urgent in Client D's repo?"
 → github + linear + slack
-→ NO: calendar, drive, whatsapp
+→ NOT: calendar, drive, whatsapp
 ```
 
-La inteligencia visible en el demo: el usuario ve qué herramientas consultó el agente y por qué.
+The intelligence is visible in the demo: the user sees in real time which tools the agent consulted and why.
 
 ---
 
-## 5. Mock Data — 4 Clientes Diseñados para el Demo
+## 5. Mock Data — 4 Clients Designed for the Demo
 
-| Cliente | Escenario | Demuestra |
-|---------|-----------|-----------|
-| **Cliente A** | Proyecto en riesgo: deadline esta semana, 3 tasks vencidas, sin update en Slack desde hace 5 días | Detección de riesgo, priorización |
-| **Cliente B** | Estado saludable, reunión reciente, métricas positivas en PostHog | Respuesta normal estructurada |
-| **Cliente C** | Conflicto activo: Granola(martes)=X, Linear(miércoles)=Y, Slack(jueves)=Z, Notion=X | Conflict resolution con confidence score |
-| **Cliente D** | Promesas del mes pasado en transcripts, algunas cerradas en Linear, otras sin task | Cross-reference de compromisos |
+| Client | Scenario | Demonstrates |
+|--------|----------|--------------|
+| **Client A** | At-risk project: deadline this week, 3 overdue tasks, no Slack update in 5 days | Risk detection, prioritization |
+| **Client B** | Healthy state, recent meeting, positive PostHog metrics | Normal structured response |
+| **Client C** | Active conflict: Granola(Tuesday)=X, Linear(Wednesday)=Y, Slack(Thursday)=Z, Notion=X | Conflict resolution with confidence score |
+| **Client D** | Promises from last month in transcripts, some closed in Linear, others with no task | Commitment cross-reference |
 
 ---
 
 ## 6. Conflict Resolution
 
-Lógica en el orchestrator (antes del LLM, más predecible):
+Logic in the orchestrator (before the LLM — more predictable):
 
 ```typescript
 function detectConflicts(toolResults: ToolResult[]): Conflict[] {
-  // Compara campos clave entre fuentes por cliente
-  // Criterio de prioridad: timestamp más reciente
-  // Si hay conflicto: NO silenciar, pasar al LLM con contexto explícito
+  // Compare key fields across sources per client
+  // Priority criterion: most recent timestamp wins
+  // If conflict found: do NOT silence it — pass to LLM with explicit context
 }
 ```
 
-**Formato de respuesta cuando hay conflicto:**
+**Response format when a conflict is detected:**
 ```
-⚠️ Conflicto detectado entre fuentes:
-  - Granola (martes 20/05): Se decidió continuar con diseño X
-  - Linear (miércoles 21/05): Task cerrada como Y
-  - Slack (jueves 22/05): Hilo sugiere cambiar a Z
+⚠️ Conflict detected across sources:
+  - Granola (Tuesday 05/20): Decision was to proceed with design X
+  - Linear (Wednesday 05/21): Task closed as Y
+  - Slack (Thursday 05/22): Thread suggests switching to Z
 
-Fuente más reciente: Slack/Z
-Confianza: Media (70%)
-Recomendación: Confirmar con el equipo antes de proceder.
+Most recent source: Slack / Z
+Confidence: Medium (70%)
+Recommendation: Confirm with the team before proceeding.
 ```
 
 ---
 
-## 7. Output Siempre Estructurado
+## 7. Always Structured Output
 
-El LLM nunca responde texto libre. El system prompt fuerza este formato:
+The LLM never responds with free text. The system prompt enforces this format:
 
 ```typescript
 interface AgentResponse {
-  summary: string           // 2-3 líneas ejecutivas
-  risks: Risk[]             // Con evidencia y fuente
-  next_steps: string[]      // Concretos y accionables
+  summary: string             // 2–3 executive lines
+  risks: Risk[]               // With evidence and source
+  next_steps: string[]        // Concrete and actionable
   confidence: 'high' | 'medium' | 'low'
   confidence_reason: string
   sources_consulted: string[]
-  conflicts?: Conflict[]    // Solo si se detectaron
-  proposed_actions?: ProposedAction[]  // Write-back pendiente de aprobación
+  conflicts?: Conflict[]      // Only if detected
+  proposed_actions?: ProposedAction[]  // Write-back pending approval
 }
 ```
 
-**Regla de confianza:**
-- `high`: todas las fuentes consultadas coinciden
-- `medium`: fuentes mayoritariamente alineadas, alguna discrepancia menor
-- `low`: conflicto activo, fuente única, o datos desactualizados
+**Confidence rules:**
+- `high`: all consulted sources agree
+- `medium`: sources mostly aligned, minor discrepancy
+- `low`: active conflict, single source, or stale data
 
 ---
 
-## 8. Write-back con Human-in-the-Loop
+## 8. Write-back with Human-in-the-Loop
 
-El agente puede proponer acciones de escritura, nunca ejecutarlas solo:
+The agent can propose write actions, never execute them alone:
 
-| Acción | Herramienta | Flujo |
-|--------|------------|-------|
-| Crear task | Linear | Agente propone → usuario aprueba → se crea |
-| Actualizar doc | Notion | Agente propone → usuario aprueba → se actualiza |
-| Draft de mensaje | Slack | Agente redacta → usuario revisa/envía |
+| Action | Tool | Flow |
+|--------|------|------|
+| Create task | Linear | Agent proposes → user approves → created |
+| Update doc | Notion | Agent proposes → user approves → updated |
+| Message draft | Slack | Agent drafts → user reviews/sends |
 
-**Autonomía en v1: draft mode only.** El agente nunca actúa por su cuenta.
+**Autonomy in v1: draft mode only.** The agent never acts on its own.
 
 ---
 
 ## 9. Guardrails
 
-| Riesgo | Guardrail |
-|--------|-----------|
-| Alucinación de datos | El LLM solo puede citar datos que vinieron de un tool call. El prompt prohíbe explícitamente inventar información. |
-| Conflicto silenciado | Si `detectConflicts()` retorna resultados, el prompt obliga a mencionarlos. |
-| Sobreconfianza | Confianza "Alta" solo si todas las fuentes coinciden. Fuente única = "Bajo". |
-| Write-back sin permiso | Toda escritura requiere confirmación explícita del usuario (botón Aprobar). |
-| Permisos de cuenta | Cada query incluye `userId`. El mock data layer filtra por clientes asignados al usuario. |
-| Scope creep del agente | El system prompt define explícitamente qué puede y no puede hacer el agente. |
+| Risk | Guardrail |
+|------|-----------|
+| Data hallucination | The LLM can only cite data that came from a tool call. The prompt explicitly forbids inventing information. |
+| Silenced conflict | If `detectConflicts()` returns results, the prompt forces the LLM to mention them. |
+| Overconfidence | Confidence "High" only when all sources agree. Single source = "Low". |
+| Unauthorized write-back | Every write action requires explicit user confirmation (Approve button). |
+| Account permissions | Every query includes `userId`. The mock data layer filters by accounts assigned to that user. |
+| Agent scope creep | The system prompt explicitly defines what the agent can and cannot do. |
 
 ---
 
-## 10. MCP vs API Directa vs Scrape
+## 10. MCP vs Direct API vs Scrape
 
-### Scrape — Descartado
-Frágil, viola ToS en la mayoría de herramientas, alto costo de mantenimiento. Solo viable para herramientas sin API (edge case WhatsApp). No se usa en este proyecto.
+### Scrape — Rejected
+Brittle, violates ToS on most tools, high maintenance cost. Only viable for tools with no API (WhatsApp edge case). Not used in this project.
 
-### API Directa — Estrategia para v2
-La decisión correcta para una web app donde el agente vive en nuestro servidor Next.js:
+### Direct API — Strategy for v2
+The right choice for a web app where the agent runs on our Next.js server:
 
-| Herramienta | API | Notas |
-|-------------|-----|-------|
-| Linear | GraphQL API | Excelente documentación, SDK oficial |
-| Slack | Web API | SDK Node.js oficial, OAuth bien definido |
-| GitHub | REST + GraphQL | Sin auth para repos públicos |
-| Notion | REST API | SDK oficial, estructura predecible |
-| Google Calendar/Drive | Google APIs | OAuth2 estándar, SDKs maduros |
-| PostHog | REST API | Diseñada para consumo programático |
-| Granola/Circleback | REST (si existe) o webhook | Depende del plan |
-| WhatsApp | Mock en v1 | Sin API oficial sin Meta Business |
-| Obsidian | Plugin local o vault sync | Sin API cloud nativa |
+| Tool | API | Notes |
+|------|-----|-------|
+| Linear | GraphQL API | Excellent docs, official SDK |
+| Slack | Web API | Official Node.js SDK, well-defined OAuth |
+| GitHub | REST + GraphQL | No auth needed for public repos |
+| Notion | REST API | Official SDK, predictable structure |
+| Google Calendar/Drive | Google APIs | Standard OAuth2, mature SDKs |
+| PostHog | REST API | Designed for programmatic consumption |
+| Granola/Circleback | REST (if available) or webhook | Depends on plan/tier |
+| WhatsApp | Mock in v1 | No official API without Meta Business |
+| Obsidian | Local plugin or vault sync | No native cloud API |
 
-### MCP — La jugada estratégica
-MCP (Model Context Protocol) aplica de dos formas distintas:
+### MCP — The Strategic Play
+MCP (Model Context Protocol) applies in two distinct ways:
 
-**Consumir MCP servers externos** (Linear MCP, GitHub MCP, Slack MCP): solo tiene sentido si el agente corre *dentro* de un cliente MCP como Claude Code o Cursor. En nuestra web app con Vercel AI SDK, el agente vive en nuestro servidor — los MCP servers externos no aplican directamente en v1.
+**Consuming external MCP servers** (Linear MCP, GitHub MCP, Slack MCP): only makes sense if the agent runs *inside* an MCP client like Claude Code or Cursor. In our Next.js web app with Vercel AI SDK, the agent lives on our server — external MCP servers do not apply directly in v1.
 
-**Exponer este agente como MCP server (v2+):** Esta es la jugada real. Convertir el agente en un MCP server permite que los founders lo consulten desde Claude Code, Cursor, o cualquier herramienta AI que ya usen, sin abrir otra app. Eso convierte el agente de producto standalone a infraestructura AI de la agencia.
+**Exposing this agent as an MCP server (v2+):** This is the real play. Turning the agent into an MCP server means founders can query it from Claude Code, Cursor, or any AI tool they already use, without opening another app. This turns the agent from a standalone product into the agency's AI infrastructure layer.
 
-### Decisión para v1
-Mock modules con la misma interfaz que tendrían las APIs reales. El agente no sabe la diferencia. El swap a producción es cambiar el cuerpo de cada función, no la arquitectura.
+### Decision for v1
+Mock modules with the same interface the real APIs would have. The agent does not know the difference. The swap to production is changing each function body, not the architecture.
 
 ---
 
-## 11. Modelo de Permisos
+## 11. Permission Model
 
 ```
-userId → rol (founder | account_lead)
+userId → role (founder | account_lead)
          ↓
-    data layer filtra por clientes asignados
+    data layer filters by assigned clients
 
-founder → ve todos los clientes
-account_lead → ve solo sus cuentas asignadas
+founder     → sees all clients
+account_lead → sees only their assigned accounts
 ```
 
-En v1: userId hardcodeado (mencionado explícitamente en el demo como decisión consciente).  
-En v2: Auth con NextAuth o Clerk, permisos heredados del usuario que pregunta.
+In v1: hardcoded userId (explicitly called out in the demo as a conscious decision).  
+In v2: Auth with NextAuth or Clerk, permissions inherited from the querying user.
 
 ---
 
 ## 12. Tech Stack
 
-| Capa | Tecnología | Justificación |
-|------|-----------|---------------|
-| Framework | Next.js 16 App Router + TypeScript | Ya scaffolded, App Router para streaming nativo |
-| AI SDK | Vercel AI SDK 4.x | `streamText` + tool calling, streaming a UI trivial |
-| LLM | Claude claude-sonnet-4-6 | Mejor reasoning, alineado con JD (Claude Code = plus) |
-| UI | Tailwind v4 + shadcn/ui | Ya configurado, componentes rápidos y limpios |
-| Data | TypeScript mock modules | Interfaz idéntica a APIs reales, swap sin refactor |
-| Deploy | Vercel | Linked al repo, auto-deploy en push, 2 minutos |
-| Auth | Ninguna en v1 | userId hardcodeado para el demo |
+| Layer | Technology | Rationale |
+|-------|-----------|-----------|
+| Framework | Next.js 16 App Router + TypeScript | Already scaffolded, App Router for native streaming |
+| AI SDK | Vercel AI SDK 4.x | `streamText` + tool calling, trivial streaming to UI |
+| LLM | Claude claude-sonnet-4-6 | Best reasoning, aligned with JD (Claude Code = plus) |
+| UI | Tailwind v4 + shadcn/ui | Already configured, fast clean components |
+| Data | TypeScript mock modules | Identical interface to real APIs, swap without refactor |
+| Deploy | Vercel | Linked to repo, auto-deploy on push, 2 minutes |
+| Auth | None in v1 | Hardcoded userId for the demo |
 
 ---
 
 ## 13. Demo Script (Live Session)
 
-5 queries que cubren todos los escenarios evaluados:
+5 queries that cover all evaluated scenarios:
 
-1. `"¿Cómo va el Cliente A esta semana?"` → respuesta estructurada, muestra source badges
-2. `"¿Qué proyectos están en riesgo?"` → detecta Cliente A, explica evidencia
-3. `"¿Qué quedó pendiente con Cliente C después de la última reunión?"` → dispara conflict scenario con confidence score
-4. `"Prepárame un brief para mi reunión de mañana con Cliente B"` → Calendar + Transcripts + Linear
-5. `"¿Qué le prometimos al Cliente D el mes pasado y qué ya entregamos?"` → cross-reference transcripts vs Linear, propone crear task pendiente
+1. `"How is Client A doing this week?"` → structured response, shows source badges
+2. `"Which projects are at risk?"` → detects Client A, explains evidence
+3. `"What was left pending with Client C after the last meeting?"` → triggers conflict scenario with confidence score
+4. `"Prepare a brief for my meeting with Client B tomorrow"` → Calendar + Transcripts + Linear
+5. `"What did we promise Client D last month and what have we delivered?"` → cross-reference transcripts vs Linear, proposes creating pending task
 
 ---
 
-## 14. Estimado de Implementación
+## 14. Implementation Estimate
 
-| Tarea | Tiempo |
-|-------|--------|
-| Setup + shadcn + estructura base | 20 min |
-| Mock data layer (4 clientes, 10 fuentes) | 40 min |
+| Task | Time |
+|------|------|
+| Setup + shadcn + base structure | 20 min |
+| Mock data layer (4 clients, 10 sources) | 40 min |
 | Tool registry + orchestrator + conflict detection | 60 min |
-| System prompt + output estructurado | 30 min |
-| Chat UI con streaming + source badges | 45 min |
+| System prompt + structured output | 30 min |
+| Chat UI with streaming + source badges | 45 min |
 | Confidence indicator + conflict alert UI | 20 min |
-| Write-back card (proponer + aprobar) | 20 min |
-| Deploy Vercel + smoke test | 15 min |
+| Write-back card (propose + approve) | 20 min |
+| Vercel deploy + smoke test | 15 min |
 | Buffer | 10 min |
 | **Total** | **~3h 40min** |
 
 ---
 
-## 15. Lo que NO hacemos en v1 (y por qué)
+## 15. What We Don't Do in v1 (and Why)
 
-- **Auth real**: no hay tiempo y no es lo que evalúan
-- **Persistencia de conversaciones**: in-memory es suficiente para el demo
-- **Rate limiting / costos**: mencionado en la presentación como v2
-- **MCP consumers**: nuestro agente no corre en un cliente MCP
-- **APIs reales**: el mock layer demuestra la misma arquitectura sin riesgo de credenciales
+- **Real auth**: no time and not what they're evaluating
+- **Conversation persistence**: in-memory is sufficient for the demo
+- **Rate limiting / costs**: mentioned in the presentation as v2
+- **MCP consumers**: our agent does not run inside an MCP client
+- **Real APIs**: the mock layer demonstrates the same architecture without credential risk
